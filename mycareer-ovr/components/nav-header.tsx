@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { signOut } from "next-auth/react";
+import { SignOutButton } from "@/components/sign-out-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Upload, BarChart3, User, LogOut, RefreshCw } from "lucide-react";
+import { Menu, Upload, BarChart3, User, RefreshCw } from "lucide-react";
 
 export function NavHeader() {
   const pathname = usePathname();
@@ -108,19 +108,15 @@ export function NavHeader() {
                   Reset Onboarding
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="cursor-pointer text-red-600"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
+                <div className="px-2 py-1.5">
+                  <SignOutButton />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
           {/* Desktop User Menu */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -147,13 +143,9 @@ export function NavHeader() {
                   Reset Onboarding
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="cursor-pointer text-red-600"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
+                <div className="px-2 py-1.5">
+                  <SignOutButton />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

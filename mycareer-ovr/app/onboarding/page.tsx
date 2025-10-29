@@ -146,6 +146,13 @@ export default function OnboardingPage() {
         throw new Error(errorData.error || "Failed to save profile");
       }
 
+      const result = await response.json();
+      
+      // Show success message with rating if available
+      if (result.rating?.overall) {
+        console.log(`✅ Profile saved! Your OVR: ${result.rating.overall}`);
+      }
+
       // Update session to mark onboarding complete
       await update();
 

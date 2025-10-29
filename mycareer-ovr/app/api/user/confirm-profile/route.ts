@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { calculateOVR } from "@/lib/ovr/calculator";
+import { getMarketProvider } from "@/lib/market/adapter";
 import { z } from "zod";
 
 const confirmProfileSchema = z.object({
@@ -157,7 +159,75 @@ export async function POST(req: NextRequest) {
       });
     });
     
-    return NextResponse.json({ success: true });
+    // AUTO-RATE: Generate initial rating immediately after profile confirmation
+    try {
+      const [education, experiences, skills, certifications, progressEvents, settings] =
+        await Promise.all([
+          prisma.education.findMany({ where: { userId: session.user.id } }),
+          prisma.experience.findMany({ where: { userId: session.user.id }, orderBy: { startDate: "desc" } }),
+          prisma.skillEndorsement.findMany({ where: { userId: session.user.id } }),
+          prisma.certification.findMany({ where: { userId: session.user.id } }),
+          prisma.progressEvent.findMany({ where: { userId: session.user.id }, orderBy: { createdAt: "desc" } }),
+          prisma.userSettings.findUnique({ where: { userId: session.user.id } }),
+        ]);
+      
+      // Fetch market signal if available
+      let marketSignal;
+      if (experiences.length > 0 && settings?.targetRole && settings?.targetIndustry) {
+        const provider = getMarketProvider();
+        const signal = await provider.fetchSignals(
+          settings.targetRole,
+          settings.targetIndustry,
+          settings.geo || undefined
+        );
+        
+        marketSignal = {
+          demandIdx: signal.demandIdx,
+          skillScarcity: signal.skillScarcity,
+          compMomentum: signal.compMomentum,
+        };
+      }
+      
+      // Calculate OVR
+      const result = calculateOVR({
+        education,
+        experiences,
+        skills,
+        certifications,
+        progressEvents,
+        marketSignal,
+      });
+      
+      // Save rating snapshot
+      const ratingSnapshot = await prisma.ratingSnapshot.create({
+        data: {
+          userId: session.user.id,
+          overall: result.overall,
+          confidence: result.confidence,
+          breakdown: result.breakdown as any,
+          explanations: result.explanations,
+          modelVersion: result.modelVersion,
+        },
+      });
+      
+      console.log(`✅ Auto-generated rating for user ${session.user.id}: OVR ${result.overall}`);
+      
+      return NextResponse.json({ 
+        success: true, 
+        rating: {
+          overall: result.overall,
+          confidence: result.confidence,
+          snapshotId: ratingSnapshot.id,
+        }
+      });
+    } catch (ratingError: any) {
+      console.error("Auto-rating failed, but profile was saved:", ratingError);
+      // Don't fail the whole request if rating fails
+      return NextResponse.json({ 
+        success: true,
+        warning: "Profile saved but rating generation failed. Please refresh your rating from the dashboard."
+      });
+    }
   } catch (error: any) {
     console.error("Profile confirmation error:", error);
     return NextResponse.json(

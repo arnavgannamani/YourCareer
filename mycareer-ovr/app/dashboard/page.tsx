@@ -7,6 +7,8 @@ import { OVRBreakdown } from "@/components/ovr-breakdown";
 import { Recommendations } from "@/components/recommendations";
 import { RatingChart } from "@/components/rating-chart";
 import { Explanations } from "@/components/explanations";
+import { GenerateRatingButton } from "@/components/generate-rating-button";
+import { ResetOnboardingButton } from "@/components/reset-onboarding-button";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -41,19 +43,39 @@ export default async function DashboardPage() {
     },
   });
 
-  // If no rating exists, prompt to create profile
+  // If no rating exists, check if profile data exists
   if (!latestRating) {
+    // Check if user has any profile data
+    const hasData = await prisma.education.count({ where: { userId: session.user.id } }) > 0 ||
+                    await prisma.experience.count({ where: { userId: session.user.id } }) > 0;
+    
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center space-y-6">
             <h1 className="text-4xl font-bold">Welcome to MyCareer OVR</h1>
             <p className="text-lg text-muted-foreground">
-              Upload your resume to get started and receive your career rating
+              {hasData 
+                ? "Your profile data is ready. Generate your rating to see your OVR."
+                : "Upload your resume to get started and receive your career rating"}
             </p>
-            <Button asChild size="lg">
-              <Link href="/profile">Get Started</Link>
-            </Button>
+            <div className="flex gap-4 justify-center">
+              {hasData ? (
+                <GenerateRatingButton />
+              ) : (
+                <>
+                  <Button asChild size="lg">
+                    <Link href="/onboarding">Get Started</Link>
+                  </Button>
+                  <ResetOnboardingButton />
+                </>
+              )}
+            </div>
+            {!hasData && (
+              <p className="text-xs text-muted-foreground">
+                Having issues? Click "Reset Onboarding" to try uploading your resume again.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -111,11 +133,7 @@ export default async function DashboardPage() {
 
         {/* Actions */}
         <div className="flex justify-center gap-4">
-          <Button size="lg" asChild>
-            <Link href="/api/rate" className="cursor-pointer">
-              Refresh Rating
-            </Link>
-          </Button>
+          <GenerateRatingButton />
           <Button variant="outline" size="lg" asChild>
             <Link href="/activity">Log Activity</Link>
           </Button>

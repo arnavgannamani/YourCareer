@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { NavHeader } from "@/components/nav-header";
 import Link from "next/link";
 import { Briefcase, GraduationCap, Award, Code } from "lucide-react";
 
@@ -30,23 +31,15 @@ export default async function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
+    <>
+      <NavHeader />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
             <h1 className="text-3xl font-bold">Profile</h1>
             <p className="text-muted-foreground">Manage your career information</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/activity">Activity</Link>
-            </Button>
-          </div>
-        </div>
 
         {/* Resume Upload Section */}
         {resumes.length === 0 && (
@@ -207,7 +200,8 @@ export default async function ProfilePage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

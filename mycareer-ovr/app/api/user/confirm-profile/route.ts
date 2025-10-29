@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     }
     
     const body = await req.json();
+    console.log("📥 Received profile data:", JSON.stringify(body, null, 2));
     const data = confirmProfileSchema.parse(body);
     
     // Save to database in a transaction
@@ -73,7 +74,8 @@ export async function POST(req: NextRequest) {
       }
       
       // Save education
-      if (data.education) {
+      if (data.education && data.education.length > 0) {
+        console.log(`💾 Saving ${data.education.length} education entries`);
         for (const edu of data.education) {
           await tx.education.create({
             data: {
@@ -88,10 +90,13 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+      } else {
+        console.log("⚠️ No education data to save");
       }
       
       // Save experiences
-      if (data.experiences) {
+      if (data.experiences && data.experiences.length > 0) {
+        console.log(`💼 Saving ${data.experiences.length} experience entries`);
         for (const exp of data.experiences) {
           await tx.experience.create({
             data: {
@@ -109,10 +114,13 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+      } else {
+        console.log("⚠️ No experience data to save");
       }
       
       // Save skills
-      if (data.skills) {
+      if (data.skills && data.skills.length > 0) {
+        console.log(`🛠️ Saving ${data.skills.length} skills`);
         for (const skill of data.skills) {
           await tx.skillEndorsement.create({
             data: {
@@ -123,6 +131,8 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+      } else {
+        console.log("⚠️ No skills data to save");
       }
       
       // Save certifications

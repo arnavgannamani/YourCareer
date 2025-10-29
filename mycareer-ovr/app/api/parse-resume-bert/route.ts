@@ -115,6 +115,8 @@ export async function POST(req: NextRequest) {
       major: edu.major,
       gpa: edu.gpa,
       schoolTier: edu.school ? getSchoolTier(edu.school) : null,
+      startDate: edu.startDate || null,
+      endDate: edu.endDate || null,
     }));
 
     const enhancedExperiences = (structured.experiences || []).map((exp: any) => ({
@@ -123,6 +125,8 @@ export async function POST(req: NextRequest) {
       employmentType: exp.employmentType || "fulltime",
       companyTier: exp.company ? getCompanyTier(exp.company) : null,
       bullets: exp.bullets || [],
+      startDate: exp.startDate || new Date().toISOString(), // Default to now if missing
+      endDate: exp.endDate || null, // Current role if no end date
     }));
 
     // Save resume version to database

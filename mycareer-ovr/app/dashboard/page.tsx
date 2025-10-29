@@ -9,6 +9,7 @@ import { RatingChart } from "@/components/rating-chart";
 import { Explanations } from "@/components/explanations";
 import { GenerateRatingButton } from "@/components/generate-rating-button";
 import { ResetOnboardingButton } from "@/components/reset-onboarding-button";
+import { NavHeader } from "@/components/nav-header";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -86,20 +87,14 @@ export default async function DashboardPage() {
   const recommendations = []; // Would come from API in real implementation
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/profile">Profile</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/activity">Activity</Link>
-            </Button>
+    <>
+      <NavHeader />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
           </div>
-        </div>
 
         {/* Hero Section - OVR Display */}
         <div className="mb-8">
@@ -139,7 +134,8 @@ export default async function DashboardPage() {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

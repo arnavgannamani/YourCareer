@@ -173,7 +173,8 @@ export default function OnboardingPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">Welcome to MyCareer OVR!</h1>
+          <h1 className="text-4xl font-bold mb-2">Welcome to Progression!</h1>
+          <p className="text-sm text-muted-foreground mb-1">Your Career, Quantified.</p>
           <p className="text-muted-foreground">
             Let's get your profile set up so we can calculate your career rating
           </p>

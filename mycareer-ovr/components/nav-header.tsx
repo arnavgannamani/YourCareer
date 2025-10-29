@@ -24,7 +24,7 @@ export function NavHeader() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/dashboard" className="text-xl font-bold">
-            MyCareer OVR
+            Progression
           </Link>
 
           {/* Desktop Navigation */}

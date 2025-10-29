@@ -54,7 +54,8 @@ export default async function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h1 className="text-4xl font-bold">Welcome to MyCareer OVR</h1>
+            <h1 className="text-4xl font-bold">Welcome to Progression</h1>
+            <p className="text-sm text-muted-foreground">Your Career, Quantified.</p>
             <p className="text-lg text-muted-foreground">
               {hasData 
                 ? "Your profile data is ready. Generate your rating to see your OVR."

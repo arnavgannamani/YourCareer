@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MyCareer OVR - Your Career Rating Engine",
+  title: "Progression - Your Career, Quantified.",
   description: "Track and improve your career rating with market-aware, explainable scoring",
 };
 

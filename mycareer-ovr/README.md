@@ -1,4 +1,4 @@
-# MyCareer OVR - Career Rating Engine
+# Progression - Your Career, Quantified.
 
 A full-stack web application that works like NBA 2K "MyCareer" but for real careers. Upload your resume, get an Overall Rating (OVR 0-99), and track your career progression with market-aware, explainable scoring.
 

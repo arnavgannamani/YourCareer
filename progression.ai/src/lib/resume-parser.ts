@@ -97,7 +97,13 @@ export async function extractTextFromDocx(buffer: Buffer): Promise<string> {
 }
 
 function buildSystemPrompt(): string {
-	return `You are a resume parser. Extract a strict JSON object with fields:
+    return `You are a resume parser. Extract a strict JSON object with fields.
+CRITICAL INSTRUCTIONS (VERBATIM MODE):
+- Do NOT paraphrase, summarize, reformat, or reorder content.
+- COPY TEXT EXACTLY as written from the resume, preserving wording, punctuation, casing, and order.
+- For bullet points, copy each bullet EXACTLY as written. Do not merge or split bullets.
+- If a value is missing, use an empty string or an empty array. Do not invent content.
+- Output ONLY JSON (no surrounding commentary or markdown).
 {
   "contact": {"name":"","email":"","phone":"","location":"","linkedin":"","github":""},
   "education": [{"school":"","degree":"","major":"","graduation_date":"","gpa":"","honors":""}],
@@ -114,7 +120,7 @@ export async function parseResumeWithGroq(resumeText: string): Promise<any> {
 	const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 	const chat = await groq.chat.completions.create({
 		model,
-		temperature: 0.1,
+        temperature: 0,
 		messages: [
 			{ role: "system", content: buildSystemPrompt() },
 			{ role: "user", content: resumeText.slice(0, 100000) },

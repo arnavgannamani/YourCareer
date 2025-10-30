@@ -233,20 +233,13 @@ export default function ReviewPage() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-xs">Description</label>
+                          <label className="text-xs">Description (include any bullet points)</label>
                           <Textarea value={ex.description || ""} onChange={(e) => {
                             const next = [...data.experience];
                             next[idx] = { ...ex, description: e.target.value };
                             setData({ ...data, experience: next });
                           }} />
-                        </div>
-                        <div>
-                          <label className="text-xs">Highlights (one per line)</label>
-                          <Textarea value={(ex.highlights || []).join("\n")} onChange={(e) => {
-                            const next = [...data.experience];
-                            next[idx] = { ...ex, highlights: e.target.value.split(/\r?\n/).filter(Boolean) };
-                            setData({ ...data, experience: next });
-                          }} />
+                          <p className="text-xs text-muted-foreground mt-1">Tip: enter bullets on new lines prefixed with • or -</p>
                         </div>
                         <div className="flex gap-2">
                           <Button variant="outline" onClick={() => {

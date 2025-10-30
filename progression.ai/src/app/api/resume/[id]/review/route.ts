@@ -27,10 +27,21 @@ function normalizeParsed(data: any) {
   };
   const education = Array.isArray(d.education) ? d.education : (Array.isArray(d.educations) ? d.educations : []);
   const experienceRaw = Array.isArray(d.experience) ? d.experience : (Array.isArray(d.experiences) ? d.experiences : []);
-  const experience = experienceRaw.map((ex: any) => ({
-    ...ex,
-    highlights: toHighlights(ex),
-  }));
+  const experience = experienceRaw.map((ex: any) => {
+    const bullets = toHighlights(ex);
+    const baseDesc = (ex?.description || "").trim();
+    const bulletsText = bullets.length ? "\n" + bullets.map((b: string) => `• ${b}`).join("\n") : "";
+    const mergedDesc = (baseDesc + bulletsText).trim();
+    return {
+      company: ex?.company || "",
+      title: ex?.title || "",
+      location: ex?.location || "",
+      start_date: ex?.start_date || "",
+      end_date: ex?.end_date || "",
+      description: mergedDesc,
+      // intentionally omit highlights so frontend only deals with description
+    };
+  });
   const skills = Array.isArray(d.skills) ? d.skills : (Array.isArray(d.skillset) ? d.skillset : []);
   const certifications = Array.isArray(d.certifications) ? d.certifications : (Array.isArray(d.certs) ? d.certs : []);
   const summary = d.summary || d.overview || d.profile || "";

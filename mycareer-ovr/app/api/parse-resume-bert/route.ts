@@ -32,7 +32,7 @@ async function extractText(buffer: Buffer, fileName: string): Promise<string> {
   }
 }
 
-async function callBertService(text: string, confidenceThreshold: number = 0.3) {
+async function callBertService(text: string, confidenceThreshold: number = 0.2) {
   try {
     const response = await fetch(`${PYTHON_SERVICE_URL}/parse`, {
       method: "POST",
@@ -104,9 +104,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Call BERT service for entity extraction
+    console.log(`🤖 Calling BERT service with ${text.length} characters of text`);
     const bertResult = await callBertService(text);
 
     const { entities, structured } = bertResult;
+    console.log(`📊 BERT extracted: ${entities?.length || 0} entities`);
+    console.log(`📚 Education: ${structured?.education?.length || 0} entries`);
+    console.log(`💼 Experience: ${structured?.experiences?.length || 0} entries`);
+    console.log(`🛠️ Skills: ${structured?.skills?.length || 0} items`);
 
     // Enhance with tier information
     const enhancedEducation = (structured.education || []).map((edu: any) => ({

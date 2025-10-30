@@ -152,9 +152,9 @@ def parse_entities_to_resume_structure(entities: list) -> dict:
         if linkedin_entities:
             resume['contact']['linkedin'] = linkedin_entities[0]['text']
     
-    # Extract education
-    schools = [e['text'] for e in entity_groups.get('SCHOOL', []) + entity_groups.get('UNIVERSITY', []) + entity_groups.get('COLLEGE', [])]
-    degrees = [e['text'] for e in entity_groups.get('DEGREE', []) + entity_groups.get('EDUCATION', [])]
+    # Extract education (handle various label formats)
+    schools = [e['text'] for e in entity_groups.get('SCHOOL', []) + entity_groups.get('UNIVERSITY', []) + entity_groups.get('COLLEGE', []) + entity_groups.get('College Name', [])]
+    degrees = [e['text'] for e in entity_groups.get('DEGREE', []) + entity_groups.get('EDUCATION', []) + entity_groups.get('Degree', []) + entity_groups.get('Graduation Year', [])]
     majors = [e['text'] for e in entity_groups.get('MAJOR', []) + entity_groups.get('FIELD_OF_STUDY', [])]
     gpas = [e['text'] for e in entity_groups.get('GPA', [])]
     
@@ -176,9 +176,9 @@ def parse_entities_to_resume_structure(entities: list) -> dict:
         if edu_entry:
             resume['education'].append(edu_entry)
     
-    # Extract work experience
-    companies = [e['text'] for e in entity_groups.get('COMPANY', []) + entity_groups.get('ORGANIZATION', [])]
-    job_titles = [e['text'] for e in entity_groups.get('JOB_TITLE', []) + entity_groups.get('POSITION', []) + entity_groups.get('TITLE', [])]
+    # Extract work experience (handle various label formats)
+    companies = [e['text'] for e in entity_groups.get('COMPANY', []) + entity_groups.get('ORGANIZATION', []) + entity_groups.get('Companies worked at', [])]
+    job_titles = [e['text'] for e in entity_groups.get('JOB_TITLE', []) + entity_groups.get('POSITION', []) + entity_groups.get('TITLE', []) + entity_groups.get('Designation', [])]
     
     for i in range(max(len(companies), len(job_titles))):
         exp_entry = {}
@@ -191,10 +191,11 @@ def parse_entities_to_resume_structure(entities: list) -> dict:
             exp_entry['employmentType'] = 'fulltime'  # Default
             resume['experiences'].append(exp_entry)
     
-    # Extract skills
+    # Extract skills (handle various label formats)
     skill_entities = (
         entity_groups.get('SKILL', []) + 
         entity_groups.get('SKILLS', []) + 
+        entity_groups.get('Skills', []) +
         entity_groups.get('TECHNOLOGY', []) +
         entity_groups.get('PROGRAMMING_LANGUAGE', []) +
         entity_groups.get('LANGUAGE', [])
@@ -254,6 +255,16 @@ def parse_resume():
         structured = parse_entities_to_resume_structure(entities)
         
         logger.info(f"Found {len(entities)} entities")
+        logger.info(f"Education entries: {len(structured['education'])}")
+        logger.info(f"Experience entries: {len(structured['experiences'])}")
+        logger.info(f"Skills: {len(structured['skills'])}")
+        
+        # If nothing found with BERT, try lowering confidence threshold
+        if len(entities) == 0:
+            logger.warning("No entities found with default confidence, trying lower threshold (0.1)")
+            entities = extract_entities_with_confidence(text, 0.1)
+            structured = parse_entities_to_resume_structure(entities)
+            logger.info(f"Retry: Found {len(entities)} entities with lower threshold")
         
         return jsonify({
             'entities': entities,

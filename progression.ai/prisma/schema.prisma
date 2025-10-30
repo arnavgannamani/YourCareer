@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  password_hash        String?
+  email_verified       DateTime?
+  verification_token   String?
+  verification_expires DateTime?
+  oauth_provider       String?
+  oauth_id             String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  // Relations
+  resumes       Resume[]
+  profiles      UserProfile[]
+  profileDrafts ProfileDraft[]
+  sessions      Session[]
+
+  @@index([oauth_provider, oauth_id])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  user_id    String
+  token      String   @unique
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([user_id])
+  @@index([expires_at])
+}
+
+model Resume {
+  id             String    @id @default(cuid())
+  user_id        String
+  file_name      String
+  file_url       String
+  file_size      Int
+  mime_type      String
+  parsing_status String    @default("pending")
+  parsed_data    Json?
+  parsing_error  String?
+  uploaded_at    DateTime  @default(now())
+  parsed_at      DateTime?
+
+  // Relations
+  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  profiles      UserProfile[]
+  profileDrafts ProfileDraft[]
+
+  @@index([user_id])
+  @@index([parsing_status])
+  @@index([uploaded_at])
+}
+
+model UserProfile {
+  id                    String   @id @default(cuid())
+  user_id               String
+  resume_id             String?
+  contact               Json
+  career_field          String?
+  years_of_experience   Int?
+  education             Json
+  experience            Json
+  skills                String[]
+  certifications        Json?
+  summary               String?
+  profile_completeness  Int       @default(0)
+  is_confirmed          Boolean   @default(false)
+  confirmed_at          DateTime?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  resume Resume? @relation(fields: [resume_id], references: [id])
+
+  @@index([user_id])
+  @@index([is_confirmed])
+  @@index([career_field])
+}
+
+model ProfileDraft {
+  id                String   @id @default(cuid())
+  user_id           String
+  resume_id         String
+  draft_data        Json
+  sections_reviewed Json
+  last_auto_saved   DateTime?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  resume Resume @relation(fields: [resume_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@unique([resume_id])
+}

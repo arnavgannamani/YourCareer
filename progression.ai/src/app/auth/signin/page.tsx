@@ -62,6 +62,10 @@ export default function SignInPage() {
             <Button className="w-full" type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <a className="underline" href="/auth/forgot">Forgot password?</a>
+              <a className="underline" href="/auth/signup">Create account</a>
+            </div>
             <p className="text-xs text-muted-foreground">
               Don&apos;t have an account? <a className="underline" href="/auth/signup">Sign up</a>
             </p>

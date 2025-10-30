@@ -21,6 +21,8 @@ model User {
   email_verified       DateTime?
   verification_token   String?
   verification_expires DateTime?
+  reset_token          String?
+  reset_expires        DateTime?
   oauth_provider       String?
   oauth_id             String?
   created_at           DateTime  @default(now())

@@ -31,4 +31,28 @@ export async function sendVerificationEmail(email: string, token: string) {
   }
 }
 
+export async function sendPasswordResetEmail(email: string, token: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const url = `${appUrl}/auth/reset?token=${encodeURIComponent(token)}`;
+  try {
+    await resend.emails.send({
+      from: process.env.NODE_ENV === "production" ? "Progression.ai <no-reply@progression.ai>" : "onboarding@resend.dev",
+      to: email,
+      subject: "Reset your password",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6">
+          <h2>Password reset</h2>
+          <p>Click below to set a new password. This link expires in 1 hour.</p>
+          <p><a href="${url}" style="background:#000;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">Reset Password</a></p>
+          <p>If the button doesn't work, copy and paste this URL:<br/>${url}</p>
+        </div>
+      `,
+    });
+    return { success: true, url } as const;
+  } catch (e) {
+    console.error("sendPasswordResetEmail error", e);
+    return { success: false, url } as const;
+  }
+}
+
 

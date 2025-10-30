@@ -1,10 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const BUCKET = "resumes";
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+let cachedClient: SupabaseClient | null = null;
+function getSupabase(): SupabaseClient {
+  if (cachedClient) return cachedClient;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
+  if (!supabaseUrl) throw new Error("NEXT_PUBLIC_SUPABASE_URL not set");
+  if (!supabaseServiceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
+  cachedClient = createClient(supabaseUrl, supabaseServiceKey);
+  return cachedClient;
+}
 
 function generatePath(userId: string, filename: string): string {
   const ext = filename.split(".").pop() || "dat";
@@ -14,6 +21,7 @@ function generatePath(userId: string, filename: string): string {
 
 export async function uploadResume(file: File | Blob, userId: string, filename: string) {
   const path = generatePath(userId, filename);
+  const supabase = getSupabase();
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
     contentType: (file as any).type || "application/octet-stream",
     upsert: false,
@@ -27,6 +35,7 @@ export async function uploadResume(file: File | Blob, userId: string, filename: 
 }
 
 export async function getResumeSignedUrl(path: string) {
+  const supabase = getSupabase();
   const { data, error } = await supabase.storage
     .from(BUCKET)
     .createSignedUrl(path, 60 * 60);
@@ -35,6 +44,7 @@ export async function getResumeSignedUrl(path: string) {
 }
 
 export async function deleteResume(path: string) {
+  const supabase = getSupabase();
   const { error } = await supabase.storage.from(BUCKET).remove([path]);
   if (error) throw error;
 }

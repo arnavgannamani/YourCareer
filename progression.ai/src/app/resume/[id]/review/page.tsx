@@ -100,7 +100,10 @@ export default function ReviewPage() {
       <div className="max-w-3xl mx-auto p-6 space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Review Your Profile</CardTitle>
+          <div className="flex items-center justify-between">
+            <Button variant="outline" size="sm" onClick={() => router.push("/upload")}>← Back</Button>
+            <CardTitle>Review Your Profile</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">Sections reviewed: {Object.values(sectionsReviewed).filter(Boolean).length}/5 {saving ? "• saving..." : ""}</p>

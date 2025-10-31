@@ -57,41 +57,7 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
         console.log("[PDF] pdfjs-dist failed:", e?.message);
     }
 
-    // Strategy 3: Try pdf2json (more reliable for some PDFs)
-    try {
-        console.log("[PDF] Trying pdf2json...");
-        const PDFParser = (await import("pdf2json")).default;
-        const pdfParser = new (PDFParser as any)(null, 1);
-        
-        const text = await new Promise<string>((resolve, reject) => {
-            pdfParser.on("pdfParser_dataError", (errData: any) => reject(new Error(errData?.parserError)));
-            pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
-                try {
-                    const pages = pdfData?.Pages || [];
-                    const textContent = pages
-                        .map((page: any) => {
-                            const texts = page.Texts || [];
-                            return texts
-                                .map((text: any) => decodeURIComponent(text?.R?.[0]?.T || ""))
-                                .join(" ");
-                        })
-                        .join("\n");
-                    resolve(textContent.trim());
-                } catch (e) {
-                    reject(e);
-                }
-            });
-            pdfParser.parseBuffer(buffer);
-        });
-        
-        if (text && text.length > 50) {
-            console.log("[PDF] ✓ pdf2json succeeded, extracted", text.length, "characters");
-            return text;
-        }
-        console.log("[PDF] pdf2json returned insufficient text");
-    } catch (e: any) {
-        console.log("[PDF] pdf2json failed:", e?.message);
-    }
+    // Strategy 3 removed: pdf2json (dependency not required). Proceed to Python fallbacks.
 
     // Strategy 4: Python (PyMuPDF) fallback via child process
     try {

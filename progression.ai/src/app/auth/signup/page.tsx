@@ -91,6 +91,15 @@ export default function SignUpPage() {
               <p className="text-xs text-muted-foreground capitalize">{computed} password</p>
               {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Confirm Password</label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>}
+            </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <Button className="w-full" disabled={loading} type="submit">
               {loading ? "Creating account..." : "Sign up"}

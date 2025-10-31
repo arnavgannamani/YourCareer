@@ -8,7 +8,7 @@ import { sendVerificationEmail } from "../../../../lib/email";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password } = signupSchema.parse(body);
+    const { email, password, confirmPassword } = signupSchema.parse(body);
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existing) {

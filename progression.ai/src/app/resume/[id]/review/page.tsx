@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../../../../components/ui/accordion";
@@ -78,7 +80,24 @@ export default function ReviewPage() {
   if (!data) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/circular logo.png"
+              alt="Progression"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+            <span className="text-xl font-semibold text-[#007A33]">Progression</span>
+          </Link>
+        </div>
+      </header>
+
+      <div className="max-w-3xl mx-auto p-6 space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Review Your Profile</CardTitle>
@@ -364,7 +383,52 @@ export default function ReviewPage() {
             <AccordionItem value="certifications">
               <AccordionTrigger>Certifications</AccordionTrigger>
               <AccordionContent>
-                <p className="text-sm text-muted-foreground">Optional</p>
+                {Array.isArray(data.certifications) && data.certifications.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.certifications.map((cert: any, idx: number) => (
+                      <div key={idx} className="text-sm border rounded-md p-3 space-y-2">
+                        <div className="grid gap-2 md:grid-cols-2">
+                          <div>
+                            <label className="text-xs">Certification Name</label>
+                            <Input value={cert.name || ""} onChange={(e) => {
+                              const next = [...data.certifications];
+                              next[idx] = { ...cert, name: e.target.value };
+                              setData({ ...data, certifications: next });
+                            }} />
+                          </div>
+                          <div>
+                            <label className="text-xs">Issuer</label>
+                            <Input value={cert.issuer || ""} onChange={(e) => {
+                              const next = [...data.certifications];
+                              next[idx] = { ...cert, issuer: e.target.value };
+                              setData({ ...data, certifications: next });
+                            }} />
+                          </div>
+                          <div>
+                            <label className="text-xs">Date Obtained</label>
+                            <Input value={cert.date || ""} placeholder="e.g. May 2024" onChange={(e) => {
+                              const next = [...data.certifications];
+                              next[idx] = { ...cert, date: e.target.value };
+                              setData({ ...data, certifications: next });
+                            }} />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" onClick={() => {
+                            const next = data.certifications.filter((_: any, i: number) => i !== idx);
+                            setData({ ...data, certifications: next });
+                          }}>Remove</Button>
+                        </div>
+                      </div>
+                    ))}
+                    <Button variant="outline" onClick={() => setData({ ...data, certifications: [...(data.certifications || []), { name: "", issuer: "", date: "" }] })}>Add certification</Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">No certifications parsed. Add any certifications you have (optional).</p>
+                    <Button variant="outline" onClick={() => setData({ ...data, certifications: [{ name: "", issuer: "", date: "" }] })}>Add certification</Button>
+                  </div>
+                )}
                 <div className="pt-3">
                   <Button
                     variant={sectionsReviewed.certifications ? "ghost" : "secondary"}
@@ -387,6 +451,7 @@ export default function ReviewPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

@@ -8,6 +8,10 @@ export const signupSchema = z.object({
     .refine((v) => /[A-Z]/.test(v), "Must include an uppercase letter")
     .refine((v) => /[a-z]/.test(v), "Must include a lowercase letter")
     .refine((v) => /[0-9]/.test(v), "Must include a number"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords must match",
+  path: ["confirmPassword"],
 });
 
 export type SignupInput = z.infer<typeof signupSchema>;

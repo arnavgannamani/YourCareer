@@ -61,19 +61,8 @@ export default function ReviewPage() {
     }
   }
 
-  async function confirm() {
-    try {
-      const res = await fetch(`/api/resume/${params.id}/confirm`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Confirmation failed");
-      router.push("/dashboard");
-    } catch (e: any) {
-      setError(e.message);
-    }
+  function goToIntent() {
+    router.push(`/resume/${params.id}/intent`);
   }
 
   if (error) return <div className="p-6 text-red-600">{error}</div>;
@@ -450,7 +439,7 @@ export default function ReviewPage() {
           </Accordion>
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={saveDraft}>Save</Button>
-            <Button onClick={confirm} disabled={Object.values(sectionsReviewed).filter(Boolean).length < 5}>Confirm & Continue</Button>
+            <Button onClick={goToIntent} disabled={Object.values(sectionsReviewed).filter(Boolean).length < 5}>Continue</Button>
           </div>
         </CardContent>
       </Card>

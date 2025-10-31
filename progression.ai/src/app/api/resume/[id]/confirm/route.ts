@@ -19,14 +19,30 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 	const session = await getServerSession(authOptions);
 	if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	const resumeId = params.id;
-	const body = await req.json();
+	let body: any = {};
+	try {
+		body = await req.json();
+	} catch {}
 
-	const contact = body?.contact;
-	const education = Array.isArray(body?.education) ? body.education : [];
-	const experience = Array.isArray(body?.experience) ? body.experience : [];
-	const skills = Array.isArray(body?.skills) ? body.skills : [];
-	const certifications = Array.isArray(body?.certifications) ? body.certifications : [];
-	const summary = body?.summary || "";
+	// Load draft to merge intent (stage/career) and the latest edited fields
+	const draft = await prisma.profileDraft.findFirst({ where: { resume_id: resumeId, user_id: (session.user as any).id } });
+	const draftData: any = (draft as any)?.draft_data || {};
+	const intent = draftData?.intent;
+
+	// Prefer body (if provided), else fall back to draft_data
+	const source = Object.keys(body || {}).length ? body : draftData;
+
+	let contact = source?.contact;
+	const education = Array.isArray(source?.education) ? source.education : [];
+	const experience = Array.isArray(source?.experience) ? source.experience : [];
+	const skills = Array.isArray(source?.skills) ? source.skills : [];
+	const certifications = Array.isArray(source?.certifications) ? source.certifications : [];
+	const summary = source?.summary || "";
+
+	// Inject stage into contact JSON to persist user's stage without schema change
+	if (intent?.stage) {
+		contact = { ...(contact || {}), stage: intent.stage };
+	}
 
 	if (!contact?.name || !contact?.location) {
 		return NextResponse.json({ error: "Contact name and location required" }, { status: 422 });
@@ -42,7 +58,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 			user_id: (session.user as any).id,
 			resume_id: resumeId,
 			contact,
-			career_field: body?.career_field || null,
+			career_field: source?.career_field || intent?.career || null,
 			years_of_experience: years,
 			education,
 			experience,

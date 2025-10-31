@@ -26,7 +26,11 @@ export default function SignInPage() {
     });
     setLoading(false);
     if (res?.error) {
-      setError("Invalid email or password");
+      if (res.error === "EMAIL_NOT_VERIFIED") {
+        setError("Please verify your email before signing in. Check your inbox for the verification link.");
+      } else {
+        setError("Invalid email or password");
+      }
     } else {
       router.replace("/upload");
     }
@@ -58,7 +62,21 @@ export default function SignInPage() {
                 placeholder="••••••••"
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <div className="space-y-2">
+                <p className="text-sm text-red-600">{error}</p>
+                {error.includes("verify your email") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => router.push(`/auth/verify?sent=1&email=${encodeURIComponent(email)}`)}
+                  >
+                    Resend verification email
+                  </Button>
+                )}
+              </div>
+            )}
             <Button className="w-full" type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>

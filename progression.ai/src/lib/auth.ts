@@ -28,6 +28,11 @@ export const authOptions: NextAuthOptions = {
         );
         if (!valid) return null;
 
+        // Check if email is verified
+        if (!user.email_verified) {
+          throw new Error("EMAIL_NOT_VERIFIED");
+        }
+
         return {
           id: user.id,
           email: user.email,

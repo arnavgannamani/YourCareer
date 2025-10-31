@@ -16,6 +16,13 @@ export default function ReviewPage() {
   const [sectionsReviewed, setSectionsReviewed] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [skillInput, setSkillInput] = useState("");
+
+  async function markReviewed(section: string) {
+    const isCurrentlyReviewed = sectionsReviewed[section];
+    setSectionsReviewed({ ...sectionsReviewed, [section]: !isCurrentlyReviewed });
+    await saveDraft();
+  }
 
   useEffect(() => {
     (async () => {
@@ -101,7 +108,17 @@ export default function ReviewPage() {
                   </div>
                 </div>
                 <div className="pt-3">
-                  <Button variant="secondary" onClick={() => setSectionsReviewed({ ...sectionsReviewed, contact: true })}>Mark as Reviewed</Button>
+                  <Button
+                    variant={sectionsReviewed.contact ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("contact")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.contact
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.contact ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -179,7 +196,17 @@ export default function ReviewPage() {
                   </div>
                 )}
                 <div className="pt-3">
-                  <Button variant="secondary" onClick={() => setSectionsReviewed({ ...sectionsReviewed, education: true })}>Mark as Reviewed</Button>
+                  <Button
+                    variant={sectionsReviewed.education ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("education")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.education
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.education ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -258,7 +285,17 @@ export default function ReviewPage() {
                   </div>
                 )}
                 <div className="pt-3">
-                  <Button variant="secondary" onClick={() => setSectionsReviewed({ ...sectionsReviewed, experience: true })}>Mark as Reviewed</Button>
+                  <Button
+                    variant={sectionsReviewed.experience ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("experience")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.experience
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.experience ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -278,30 +315,49 @@ export default function ReviewPage() {
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <Input placeholder="Add a skill" onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const value = (e.target as HTMLInputElement).value.trim();
+                    <Input
+                      placeholder="Add a skill"
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const value = skillInput.trim();
+                          if (value) {
+                            const next = Array.from(new Set([...(data.skills || []), value]));
+                            setData({ ...data, skills: next });
+                            setSkillInput("");
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const value = skillInput.trim();
                         if (value) {
                           const next = Array.from(new Set([...(data.skills || []), value]));
                           setData({ ...data, skills: next });
-                          (e.target as HTMLInputElement).value = "";
+                          setSkillInput("");
                         }
-                      }
-                    }} />
-                    <Button type="button" onClick={() => {
-                      const input = (document.activeElement as HTMLInputElement);
-                      const value = input?.value?.trim?.();
-                      if (value) {
-                        const next = Array.from(new Set([...(data.skills || []), value]));
-                        setData({ ...data, skills: next });
-                        input.value = "";
-                      }
-                    }}>Add</Button>
+                      }}
+                    >
+                      Add
+                    </Button>
                   </div>
                 </div>
                 <div className="pt-3">
-                  <Button variant="secondary" onClick={() => setSectionsReviewed({ ...sectionsReviewed, skills: true })}>Mark as Reviewed</Button>
+                  <Button
+                    variant={sectionsReviewed.skills ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("skills")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.skills
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.skills ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -310,7 +366,17 @@ export default function ReviewPage() {
               <AccordionContent>
                 <p className="text-sm text-muted-foreground">Optional</p>
                 <div className="pt-3">
-                  <Button variant="secondary" onClick={() => setSectionsReviewed({ ...sectionsReviewed, certifications: true })}>Mark as Reviewed</Button>
+                  <Button
+                    variant={sectionsReviewed.certifications ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("certifications")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.certifications
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.certifications ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>

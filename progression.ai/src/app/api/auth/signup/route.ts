@@ -39,9 +39,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, userId: user.id });
   } catch (err: any) {
     if (err?.name === "ZodError") {
-      return NextResponse.json({ error: err.flatten() }, { status: 422 });
+      const errors = err.flatten().fieldErrors;
+      const errorMessage = Object.entries(errors)
+        .map(([field, messages]) => `${field}: ${(messages as string[]).join(", ")}`)
+        .join("; ");
+      return NextResponse.json({ error: errorMessage }, { status: 422 });
     }
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: err?.message || "Something went wrong" }, { status: 500 });
   }
 }
 

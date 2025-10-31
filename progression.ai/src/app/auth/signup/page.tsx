@@ -36,7 +36,9 @@ export default function SignUpPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data?.error || "Failed to sign up");
+        // Handle structured error messages
+        const errorMsg = typeof data?.error === "string" ? data.error : "Failed to sign up";
+        throw new Error(errorMsg);
       }
       router.push("/auth/verify?sent=1");
     } catch (e: any) {

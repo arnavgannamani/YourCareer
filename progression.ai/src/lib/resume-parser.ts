@@ -122,13 +122,29 @@ CRITICAL INSTRUCTIONS (VERBATIM MODE):
 - COPY TEXT EXACTLY as written from the resume, preserving wording, punctuation, casing, and order.
 - For bullet points, copy each bullet EXACTLY as written. Do not merge or split bullets.
 - If a value is missing, use an empty string or an empty array. Do not invent content.
+
+SPECIAL INSTRUCTIONS FOR COMBINED SECTIONS:
+- If you see "SKILLS & INTERESTS" or similar combined sections, split them:
+  * Technical/professional items (programming languages, tools, etc.) go in "skills"
+  * Personal/hobby items (activities, pastimes, hobbies) go in "interests"
+- Example: If a section says "Skills: Python, Excel | Interests: Photography, Swimming"
+  * skills: ["Python", "Excel"]
+  * interests: ["Photography", "Swimming"]
+
+PROJECTS SECTION:
+- Look for "PROJECTS" or "Personal Projects" sections
+- Extract title, dates, and description for each project
+- If description has multiple bullet points, combine them
+
 - Output ONLY JSON (no surrounding commentary or markdown).
 {
   "contact": {"name":"","email":"","phone":"","location":"","linkedin":"","github":""},
   "education": [{"school":"","degree":"","major":"","graduation_date":"","gpa":"","honors":""}],
   "experience": [{"company":"","title":"","start_date":"","end_date":"","location":"","description":"","highlights":[""]}],
+  "projects": [{"title":"","start_date":"","end_date":"","description":""}],
   "skills": [""],
   "certifications": [{"name":"","issuer":"","date":""}],
+  "interests": [""],
   "summary": ""
 }
 If information is missing, use empty strings or empty arrays. Output only JSON.`;
@@ -159,8 +175,10 @@ export function validateParsedResume(data: any) {
 		contact: data?.contact || {},
 		education: Array.isArray(data?.education) ? data.education : [],
 		experience: Array.isArray(data?.experience) ? data.experience : [],
+		projects: Array.isArray(data?.projects) ? data.projects : [],
 		skills: Array.isArray(data?.skills) ? Array.from(new Set(data.skills)) : [],
 		certifications: Array.isArray(data?.certifications) ? data.certifications : [],
+		interests: Array.isArray(data?.interests) ? data.interests : [],
 		summary: data?.summary || "",
 		parser_version: "1.0",
 		parsed_at: new Date().toISOString(),

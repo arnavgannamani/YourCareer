@@ -11,6 +11,43 @@ import { Input } from "../../../../components/ui/input";
 import { Badge } from "../../../../components/ui/badge";
 import { Textarea } from "../../../../components/ui/textarea";
 
+function AnimatedCheck() {
+  return (
+    <svg 
+      width="20" 
+      height="20" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      className="checkmark-animation"
+    >
+      <path 
+        d="M4 12L9 17L20 6" 
+        stroke="#007A33" 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        className="checkmark-path"
+      />
+      <style jsx>{`
+        @keyframes drawCheck {
+          0% {
+            stroke-dashoffset: 24;
+          }
+          100% {
+            stroke-dashoffset: 0;
+          }
+        }
+        .checkmark-path {
+          stroke-dasharray: 24;
+          stroke-dashoffset: 24;
+          animation: drawCheck 0.15s ease-out forwards;
+        }
+      `}</style>
+    </svg>
+  );
+}
+
 export default function ReviewPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -19,6 +56,8 @@ export default function ReviewPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [skillInput, setSkillInput] = useState("");
+  const [interestInput, setInterestInput] = useState("");
+  const [showWarning, setShowWarning] = useState(false);
 
   async function markReviewed(section: string) {
     const isCurrentlyReviewed = sectionsReviewed[section];
@@ -62,6 +101,12 @@ export default function ReviewPage() {
   }
 
   function goToIntent() {
+    const reviewedCount = Object.values(sectionsReviewed).filter(Boolean).length;
+    if (reviewedCount < 7) {
+      setShowWarning(true);
+      setTimeout(() => setShowWarning(false), 3000);
+      return;
+    }
     router.push(`/resume/${params.id}/intent`);
   }
 
@@ -95,7 +140,7 @@ export default function ReviewPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">Sections reviewed: {Object.values(sectionsReviewed).filter(Boolean).length}/5 {saving ? "• saving..." : ""}</p>
+          <p className="text-sm font-medium text-black">*Sections reviewed: {Object.values(sectionsReviewed).filter(Boolean).length}/7 {saving ? "• saving..." : ""}</p>
           <Accordion type="multiple" className="w-full">
             <AccordionItem value="contact">
               <AccordionTrigger>Contact Information</AccordionTrigger>
@@ -118,7 +163,7 @@ export default function ReviewPage() {
                     <Input value={data.contact?.location || ""} onChange={(e) => setData({ ...data, contact: { ...data.contact, location: e.target.value } })} />
                   </div>
                 </div>
-                <div className="pt-3">
+                <div className="pt-3 flex items-center gap-2">
                   <Button
                     variant={sectionsReviewed.contact ? "ghost" : "secondary"}
                     onClick={() => markReviewed("contact")}
@@ -130,6 +175,7 @@ export default function ReviewPage() {
                   >
                     {sectionsReviewed.contact ? "Reviewed" : "Mark as Reviewed"}
                   </Button>
+                  {sectionsReviewed.contact && <AnimatedCheck />}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -206,7 +252,7 @@ export default function ReviewPage() {
                     <Button variant="outline" onClick={() => setData({ ...data, education: [{ school: "", degree: "", major: "", graduation_date: "", gpa: "", honors: "" }] })}>Add education</Button>
                   </div>
                 )}
-                <div className="pt-3">
+                <div className="pt-3 flex items-center gap-2">
                   <Button
                     variant={sectionsReviewed.education ? "ghost" : "secondary"}
                     onClick={() => markReviewed("education")}
@@ -218,6 +264,7 @@ export default function ReviewPage() {
                   >
                     {sectionsReviewed.education ? "Reviewed" : "Mark as Reviewed"}
                   </Button>
+                  {sectionsReviewed.education && <AnimatedCheck />}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -295,7 +342,7 @@ export default function ReviewPage() {
                     <Button variant="outline" onClick={() => setData({ ...data, experience: [{ company: "", title: "", location: "", start_date: "", end_date: "", description: "", highlights: [] }] })}>Add experience</Button>
                   </div>
                 )}
-                <div className="pt-3">
+                <div className="pt-3 flex items-center gap-2">
                   <Button
                     variant={sectionsReviewed.experience ? "ghost" : "secondary"}
                     onClick={() => markReviewed("experience")}
@@ -307,6 +354,7 @@ export default function ReviewPage() {
                   >
                     {sectionsReviewed.experience ? "Reviewed" : "Mark as Reviewed"}
                   </Button>
+                  {sectionsReviewed.experience && <AnimatedCheck />}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -357,7 +405,7 @@ export default function ReviewPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="pt-3">
+                <div className="pt-3 flex items-center gap-2">
                   <Button
                     variant={sectionsReviewed.skills ? "ghost" : "secondary"}
                     onClick={() => markReviewed("skills")}
@@ -369,6 +417,86 @@ export default function ReviewPage() {
                   >
                     {sectionsReviewed.skills ? "Reviewed" : "Mark as Reviewed"}
                   </Button>
+                  {sectionsReviewed.skills && <AnimatedCheck />}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="projects">
+              <AccordionTrigger>Projects</AccordionTrigger>
+              <AccordionContent>
+                {Array.isArray(data.projects) && data.projects.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.projects.map((project: any, idx: number) => (
+                      <div key={idx} className="text-sm border rounded-md p-3 space-y-2">
+                        <div className="grid gap-2">
+                          <div>
+                            <label className="text-xs">Project Title</label>
+                            <Input value={project.title || ""} onChange={(e) => {
+                              const next = [...data.projects];
+                              next[idx] = { ...project, title: e.target.value };
+                              setData({ ...data, projects: next });
+                            }} />
+                          </div>
+                          <div className="grid gap-2 md:grid-cols-2">
+                            <div>
+                              <label className="text-xs">Start Date</label>
+                              <Input value={project.start_date || ""} placeholder="e.g. Jan 2024" onChange={(e) => {
+                                const next = [...data.projects];
+                                next[idx] = { ...project, start_date: e.target.value };
+                                setData({ ...data, projects: next });
+                              }} />
+                            </div>
+                            <div>
+                              <label className="text-xs">End Date</label>
+                              <Input value={project.end_date || ""} placeholder="e.g. Present" onChange={(e) => {
+                                const next = [...data.projects];
+                                next[idx] = { ...project, end_date: e.target.value };
+                                setData({ ...data, projects: next });
+                              }} />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-xs">Description</label>
+                            <Textarea
+                              value={project.description || ""}
+                              onChange={(e) => {
+                                const next = [...data.projects];
+                                next[idx] = { ...project, description: e.target.value };
+                                setData({ ...data, projects: next });
+                              }}
+                              rows={4}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" onClick={() => {
+                            const next = data.projects.filter((_: any, i: number) => i !== idx);
+                            setData({ ...data, projects: next });
+                          }}>Remove</Button>
+                        </div>
+                      </div>
+                    ))}
+                    <Button variant="outline" onClick={() => setData({ ...data, projects: [...(data.projects || []), { title: "", start_date: "", end_date: "", description: "" }] })}>Add project</Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">No projects parsed. Add any projects you have (optional).</p>
+                    <Button variant="outline" onClick={() => setData({ ...data, projects: [{ title: "", start_date: "", end_date: "", description: "" }] })}>Add project</Button>
+                  </div>
+                )}
+                <div className="pt-3 flex items-center gap-2">
+                  <Button
+                    variant={sectionsReviewed.projects ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("projects")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.projects
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.projects ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
+                  {sectionsReviewed.projects && <AnimatedCheck />}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -421,7 +549,7 @@ export default function ReviewPage() {
                     <Button variant="outline" onClick={() => setData({ ...data, certifications: [{ name: "", issuer: "", date: "" }] })}>Add certification</Button>
                   </div>
                 )}
-                <div className="pt-3">
+                <div className="pt-3 flex items-center gap-2">
                   <Button
                     variant={sectionsReviewed.certifications ? "ghost" : "secondary"}
                     onClick={() => markReviewed("certifications")}
@@ -433,13 +561,82 @@ export default function ReviewPage() {
                   >
                     {sectionsReviewed.certifications ? "Reviewed" : "Mark as Reviewed"}
                   </Button>
+                  {sectionsReviewed.certifications && <AnimatedCheck />}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="interests">
+              <AccordionTrigger>Interests</AccordionTrigger>
+              <AccordionContent>
+                {Array.isArray(data.interests) && data.interests.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {data.interests.map((interest: string, idx: number) => (
+                      <Badge key={idx} variant="secondary" className="flex items-center gap-1">
+                        {interest}
+                        <button
+                          onClick={() => {
+                            const next = data.interests.filter((_: string, i: number) => i !== idx);
+                            setData({ ...data, interests: next });
+                          }}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No interests parsed.</p>
+                )}
+                <div className="flex gap-2 mt-3">
+                  <Input
+                    placeholder="e.g. Photography, Hiking, Volunteering"
+                    value={interestInput}
+                    onChange={(e) => setInterestInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && interestInput.trim()) {
+                        setData({ ...data, interests: [...(data.interests || []), interestInput.trim()] });
+                        setInterestInput("");
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (interestInput.trim()) {
+                        setData({ ...data, interests: [...(data.interests || []), interestInput.trim()] });
+                        setInterestInput("");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="pt-3 flex items-center gap-2">
+                  <Button
+                    variant={sectionsReviewed.interests ? "ghost" : "secondary"}
+                    onClick={() => markReviewed("interests")}
+                    className={`transition-all duration-300 ${
+                      sectionsReviewed.interests
+                        ? "opacity-50 hover:opacity-60"
+                        : "opacity-100 bg-secondary hover:bg-secondary/80"
+                    }`}
+                  >
+                    {sectionsReviewed.interests ? "Reviewed" : "Mark as Reviewed"}
+                  </Button>
+                  {sectionsReviewed.interests && <AnimatedCheck />}
                 </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+          {showWarning && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">Please make sure all sections are reviewed before continuing.</p>
+            </div>
+          )}
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={saveDraft}>Save</Button>
-            <Button onClick={goToIntent} disabled={Object.values(sectionsReviewed).filter(Boolean).length < 5}>Continue</Button>
+            <Button onClick={goToIntent}>Continue</Button>
           </div>
         </CardContent>
       </Card>

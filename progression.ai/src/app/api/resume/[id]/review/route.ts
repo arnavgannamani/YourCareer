@@ -44,8 +44,10 @@ function normalizeParsed(data: any) {
   });
   const skills = Array.isArray(d.skills) ? d.skills : (Array.isArray(d.skillset) ? d.skillset : []);
   const certifications = Array.isArray(d.certifications) ? d.certifications : (Array.isArray(d.certs) ? d.certs : []);
+  const interests = Array.isArray(d.interests) ? d.interests : (Array.isArray(d.hobbies) ? d.hobbies : (Array.isArray(d.activities) ? d.activities : []));
+  const projects = Array.isArray(d.projects) ? d.projects : [];
   const summary = d.summary || d.overview || d.profile || "";
-  return { contact, education, experience, skills, certifications, summary };
+  return { contact, education, experience, projects, skills, certifications, interests, summary };
 }
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {

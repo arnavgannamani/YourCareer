@@ -11,6 +11,30 @@ import { Sparkles, TrendingUp, CheckCircle2, X, Info } from "lucide-react";
 
 const STAGES = ["High School", "College", "Postgrad", "Professional"] as const;
 
+const INDUSTRIES = [
+  "Technology & Software",
+  "Finance & Banking",
+  "Healthcare & Biotech",
+  "Consulting",
+  "Retail & E-commerce",
+  "Media & Entertainment",
+  "Sports & Recreation",
+  "Education",
+  "Real Estate",
+  "Energy & Utilities",
+  "Manufacturing",
+  "Automotive",
+  "Aerospace & Defense",
+  "Telecommunications",
+  "Transportation & Logistics",
+  "Non-Profit & Social Impact",
+  "Government & Public Sector",
+  "Agriculture & Food",
+  "Hospitality & Travel",
+  "Fashion & Apparel",
+  "Other",
+] as const;
+
 const CAREER_GROUPS: Record<string, string[]> = {
   Engineering: [
     "Software Engineer",
@@ -198,6 +222,8 @@ export default function IntentPage() {
   const [stage, setStage] = useState<string>("");
   const [career, setCareer] = useState<string>("");
   const [customCareer, setCustomCareer] = useState<string>("");
+  const [industry, setIndustry] = useState<string>("");
+  const [customIndustry, setCustomIndustry] = useState<string>("");
   const [careerSearch, setCareerSearch] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -355,6 +381,7 @@ export default function IntentPage() {
   }
 
   const effectiveCareer = career === "Other" ? customCareer : career;
+  const effectiveIndustry = industry === "Other" ? customIndustry : industry;
   
   const allCareersFlat = Object.values(CAREER_GROUPS).flat();
   const baseList = selectedGroup === "All" ? allCareersFlat : CAREER_GROUPS[selectedGroup] || [];
@@ -562,8 +589,8 @@ export default function IntentPage() {
   }
 
   async function saveIntent() {
-    // Allow saving partial progress (stage and/or career)
-    if (!stage && !effectiveCareer) return;
+    // Allow saving partial progress (stage and/or career and/or industry)
+    if (!stage && !effectiveCareer && !effectiveIndustry) return;
     setSaving(true);
     setError(null);
     setSaved(false);
@@ -571,7 +598,15 @@ export default function IntentPage() {
       const res = await fetch(`/api/resume/${params.id}/draft`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draftUpdate: { intent: { ...(stage ? { stage } : {}), ...(effectiveCareer ? { career: effectiveCareer } : {}) } } }),
+        body: JSON.stringify({ 
+          draftUpdate: { 
+            intent: { 
+              ...(stage ? { stage } : {}), 
+              ...(effectiveCareer ? { career: effectiveCareer } : {}),
+              ...(effectiveIndustry ? { industry: effectiveIndustry } : {})
+            } 
+          } 
+        }),
       });
       if (res.ok) {
         setSaved(true);
@@ -852,6 +887,58 @@ export default function IntentPage() {
               )}
             </div>
 
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium">
+                  Target Industry
+                  {industry && <span className="ml-2 text-xs text-gray-500 font-normal">({industry} selected)</span>}
+                </p>
+                {industry && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIndustry("");
+                      setCustomIndustry("");
+                    }}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mb-3">
+                Select the industry where you want to apply your {career || "career"}. For example: Data Analyst in Sports Industry.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {INDUSTRIES.map((ind) => (
+                  <button
+                    key={ind}
+                    type="button"
+                    onClick={() => setIndustry(ind)}
+                    className={`rounded-lg border-2 p-3 text-center transition-all duration-200 ${
+                      industry === ind
+                        ? "border-[#007A33] bg-[#007A33] text-white shadow-md scale-105"
+                        : "border-gray-200 hover:border-[#007A33]/50 hover:bg-gray-50 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className={`text-xs font-semibold ${industry === ind ? "text-white" : "text-black"}`}>
+                      {ind}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {industry === "Other" && (
+                <div className="mt-4">
+                  <Input 
+                    placeholder="Enter your target industry" 
+                    value={customIndustry} 
+                    onChange={(e) => setCustomIndustry(e.target.value)}
+                    className="border-[#007A33] focus:border-[#007A33]"
+                  />
+                </div>
+              )}
+            </div>
+
             {error && <p className="text-sm text-red-600">{error}</p>}
             
             {saved && (
@@ -871,7 +958,7 @@ export default function IntentPage() {
                   <Button 
                     variant="outline" 
                     onClick={saveIntent} 
-                    disabled={(!stage && !effectiveCareer) || saving}
+                    disabled={(!stage && !effectiveCareer && !effectiveIndustry) || saving}
                     className="flex-1 sm:flex-initial"
                   >
                     {saved ? "Saved ✓" : "Save"}

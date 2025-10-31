@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
@@ -36,7 +37,19 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-6">
+        <div className="flex items-center justify-center gap-2">
+          <Image 
+            src="/circular logo.png" 
+            alt="Progression" 
+            width={40} 
+            height={40}
+            className="rounded-full"
+          />
+          <span className="text-2xl font-semibold text-[#007A33]">Progression</span>
+        </div>
+        
+        <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Set a new password</CardTitle>
         </CardHeader>
@@ -61,6 +74,7 @@ export default function ResetPasswordPage() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

@@ -1,12 +1,19 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-black">
       <header className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-[#007A33]" />
-          <span className="text-xl font-semibold text-black">progression.ai</span>
+          <Image 
+            src="/circular logo.png" 
+            alt="Progression" 
+            width={32} 
+            height={32}
+            className="rounded-full"
+          />
+          <span className="text-xl font-semibold text-[#007A33]">Progression</span>
         </Link>
         <nav className="hidden sm:flex items-center gap-6 text-sm text-gray-600">
           <Link href="/auth/signin" className="hover:text-black">Sign in</Link>
@@ -20,10 +27,10 @@ export default function Home() {
           <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-tight text-black">
             Your Career, Quantified
             <br />
-            <span className="text-[#007A33]">WITH PROGRESSION.AI</span>
+            <span className="text-[#007A33]">WITH PROGRESSION</span>
           </h1>
           <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
-            Progression.ai turns your experience into a quantified overall, surfaces tailored recommendations, and
+            Progression turns your experience into a quantified overall, surfaces tailored recommendations, and
             gets you from upload to insights in under a minute.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -44,7 +51,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-gray-200 py-10 text-center text-sm text-gray-600">
-        © {new Date().getFullYear()} progression.ai · Your Career, Quantified
+        © {new Date().getFullYear()} Progression · Your Career, Quantified
       </footer>
     </div>
   );

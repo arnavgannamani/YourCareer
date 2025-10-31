@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "../../components/ui/button";
 import { Progress } from "../../components/ui/progress";
 import { useRouter } from "next/navigation";
@@ -59,8 +60,14 @@ export default function UploadPage() {
     <div className="min-h-screen bg-white">
       <header className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <Link href="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-[#007A33]" />
-          <span className="text-xl font-semibold text-black">progression.ai</span>
+          <Image 
+            src="/circular logo.png" 
+            alt="Progression" 
+            width={32} 
+            height={32}
+            className="rounded-full"
+          />
+          <span className="text-xl font-semibold text-[#007A33]">Progression</span>
         </Link>
       </header>
 

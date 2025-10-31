@@ -7,7 +7,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   const url = `${appUrl}/auth/verify?token=${encodeURIComponent(token)}`;
 
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       // Use Resend onboarding sender in development to avoid domain verification issues
       from: process.env.NODE_ENV === "production" ? "Progression <no-reply@progression.ai>" : "onboarding@resend.dev",
       to: email,
@@ -24,9 +24,10 @@ export async function sendVerificationEmail(email: string, token: string) {
         </div>
       `,
     });
+    console.log(`[EMAIL] Verification email sent to ${email}:`, result);
     return { success: true, url } as const;
   } catch (e) {
-    console.error("sendVerificationEmail error", e);
+    console.error(`[EMAIL ERROR] Failed to send verification email to ${email}:`, e);
     return { success: false, url } as const;
   }
 }
@@ -35,7 +36,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
   const url = `${appUrl}/auth/reset?token=${encodeURIComponent(token)}`;
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: process.env.NODE_ENV === "production" ? "Progression <no-reply@progression.ai>" : "onboarding@resend.dev",
       to: email,
       subject: "Reset your password",
@@ -48,9 +49,10 @@ export async function sendPasswordResetEmail(email: string, token: string) {
         </div>
       `,
     });
+    console.log(`[EMAIL] Password reset email sent to ${email}:`, result);
     return { success: true, url } as const;
   } catch (e) {
-    console.error("sendPasswordResetEmail error", e);
+    console.error(`[EMAIL ERROR] Failed to send password reset email to ${email}:`, e);
     return { success: false, url } as const;
   }
 }

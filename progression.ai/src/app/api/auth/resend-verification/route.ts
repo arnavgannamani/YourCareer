@@ -37,6 +37,19 @@ export async function POST(req: Request) {
 
     if (process.env.NODE_ENV !== "production") {
       console.log("[DEV] New verification URL:", sendResult.url);
+      
+      // In development, if email send fails, auto-verify the user
+      if (!sendResult.success) {
+        console.log("[DEV] Email send failed, auto-verifying user for development");
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { email_verified: new Date() },
+        });
+        return NextResponse.json({ 
+          success: true, 
+          message: "Email auto-verified for development (email service unavailable)" 
+        });
+      }
     }
 
     return NextResponse.json({ success: true, message: "Verification email sent" });

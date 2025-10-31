@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
-import { Sparkles, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Sparkles, TrendingUp, CheckCircle2, X, Info } from "lucide-react";
 
 const STAGES = ["High School", "College", "Postgrad", "Professional"] as const;
 
@@ -48,6 +48,46 @@ const CAREER_GROUPS: Record<string, string[]> = {
     "Sales",
     "Business Development",
   ],
+  "STEM & Research": [
+    "Biomedical Engineer",
+    "Bioengineer",
+    "Biochemist",
+    "Biophysicist",
+    "Chemist",
+    "Physicist",
+    "Research Scientist",
+    "Lab Technician",
+    "Clinical Research Associate",
+    "Pharmaceutical Scientist",
+    "Materials Scientist",
+    "Environmental Scientist",
+    "Computational Biologist",
+    "Geneticist",
+    "Molecular Biologist",
+    "Pharmacologist",
+  ],
+  "Healthcare & Medicine": [
+    "Doctor",
+    "Physician",
+    "Surgeon",
+    "Primary Care Physician",
+    "Emergency Medicine Physician",
+    "Pediatrician",
+    "Cardiologist",
+    "Oncologist",
+    "Neurologist",
+    "Psychiatrist",
+    "Anesthesiologist",
+    "Radiologist",
+    "Dermatologist",
+    "Orthopedic Surgeon",
+    "Nurse",
+    "Nurse Practitioner",
+    "Physician Assistant",
+    "Medical Researcher",
+    "Clinical Trial Specialist",
+    "Medical Writer",
+  ],
   Other: ["Other"],
 };
 
@@ -78,6 +118,42 @@ const CAREER_DESCRIPTIONS: Record<string, string> = {
   "Marketing": "Drive brand awareness and customer acquisition",
   "Sales": "Build relationships and close deals",
   "Business Development": "Identify and pursue growth opportunities",
+  "Biomedical Engineer": "Design medical devices and biological systems",
+  "Bioengineer": "Apply engineering principles to biological systems",
+  "Biochemist": "Study chemical processes in living organisms",
+  "Biophysicist": "Apply physics principles to biological systems",
+  "Chemist": "Research and develop chemical processes and materials",
+  "Physicist": "Research physical properties and phenomena",
+  "Research Scientist": "Conduct research and experiments in scientific fields",
+  "Lab Technician": "Perform laboratory tests and experiments",
+  "Clinical Research Associate": "Manage clinical trials and research studies",
+  "Pharmaceutical Scientist": "Develop and test pharmaceutical drugs",
+  "Materials Scientist": "Research and develop new materials",
+  "Environmental Scientist": "Study environmental systems and solutions",
+  "Computational Biologist": "Apply computational methods to biological problems",
+  "Geneticist": "Study genes, heredity, and genetic variation",
+  "Molecular Biologist": "Study biological processes at molecular level",
+  "Pharmacologist": "Research effects of drugs and medicines",
+  "Doctor": "Diagnose and treat medical conditions",
+  "Physician": "Provide medical care and treatment to patients",
+  "Surgeon": "Perform surgical procedures to treat conditions",
+  "Primary Care Physician": "Provide comprehensive primary healthcare",
+  "Emergency Medicine Physician": "Treat patients in emergency settings",
+  "Pediatrician": "Provide medical care for infants, children, and adolescents",
+  "Cardiologist": "Diagnose and treat heart and cardiovascular conditions",
+  "Oncologist": "Diagnose and treat cancer",
+  "Neurologist": "Diagnose and treat neurological disorders",
+  "Psychiatrist": "Diagnose and treat mental health disorders",
+  "Anesthesiologist": "Administer anesthesia during surgical procedures",
+  "Radiologist": "Interpret medical imaging studies",
+  "Dermatologist": "Diagnose and treat skin conditions",
+  "Orthopedic Surgeon": "Perform surgery on musculoskeletal system",
+  "Nurse": "Provide patient care and medical support",
+  "Nurse Practitioner": "Provide advanced nursing care and treatment",
+  "Physician Assistant": "Assist physicians in medical care and procedures",
+  "Medical Researcher": "Conduct research in medical and healthcare fields",
+  "Clinical Trial Specialist": "Manage and coordinate clinical trials",
+  "Medical Writer": "Create medical documentation and content",
 };
 
 // Skills to category mapping
@@ -95,6 +171,24 @@ const SKILL_TO_CATEGORY: Record<string, string> = {
   "trading": "Finance & Trading",
   "consulting": "Business",
   "marketing": "Business",
+  "biology": "STEM & Research",
+  "chemistry": "STEM & Research",
+  "physics": "STEM & Research",
+  "biochemistry": "STEM & Research",
+  "biomedical": "STEM & Research",
+  "research": "STEM & Research",
+  "laboratory": "STEM & Research",
+  "pharmaceutical": "STEM & Research",
+  "doctor": "Healthcare & Medicine",
+  "physician": "Healthcare & Medicine",
+  "surgeon": "Healthcare & Medicine",
+  "medical": "Healthcare & Medicine",
+  "healthcare": "Healthcare & Medicine",
+  "nurse": "Healthcare & Medicine",
+  "clinical": "Healthcare & Medicine",
+  "hospital": "Healthcare & Medicine",
+  "patient": "Healthcare & Medicine",
+  "medicine": "Healthcare & Medicine",
 };
 
 export default function IntentPage() {
@@ -111,6 +205,8 @@ export default function IntentPage() {
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
   const [showAll, setShowAll] = useState<boolean>(false);
   const [recommendedCareers, setRecommendedCareers] = useState<string[]>([]);
+  const [showExplanationModal, setShowExplanationModal] = useState<boolean>(false);
+  const [selectedCareerForExplanation, setSelectedCareerForExplanation] = useState<string>("");
 
   // Load parsed data and auto-preselect
   useEffect(() => {
@@ -211,6 +307,8 @@ export default function IntentPage() {
         "Product & Design": ["product", "design", "ux", "ui", "user experience", "wireframe", "prototype"],
         "Finance & Trading": ["finance", "trading", "investment", "banking", "quantitative", "trading", "portfolio"],
         "Business": ["business", "strategy", "consulting", "marketing", "sales", "operations", "management"],
+        "STEM & Research": ["laboratory", "experiment", "research", "molecule", "cell", "dna", "protein", "assay", "microscopy", "spectroscopy", "chromatography", "clinical trial", "pcr", "biology", "chemistry", "physics", "biochemistry", "biomedical", "pharmaceutical", "genetics", "genomics", "biophysics"],
+        "Healthcare & Medicine": ["patient", "diagnosis", "treatment", "medical", "clinical", "hospital", "physician", "doctor", "surgery", "medication", "symptoms", "diagnostic", "therapeutic", "healthcare", "medicine", "primary care", "emergency", "surgical", "medical imaging", "patient care", "medical practice"],
       };
       
       for (const [cat, keywords] of Object.entries(categoryKeywords)) {
@@ -265,6 +363,203 @@ export default function IntentPage() {
   
   // Filter out "Other" from recommended if not needed
   const displayedRecommended = recommendedCareers.filter((c) => c !== "Other");
+
+  // Function to generate explanations for why a career was recommended
+  function getCareerExplanation(career: string): string[] {
+    const reasons: string[] = [];
+    const skills = parsedData?.skills || [];
+    const skillsLower = skills.map((s: string) => s.toLowerCase());
+    const exp = parsedData?.experience || [];
+    const edu = parsedData?.education || [];
+    const expTitles = exp.map((e: any) => e?.title || "").filter(Boolean);
+    const expDescriptions = exp.map((e: any) => (e?.description || "").toLowerCase()).filter(Boolean);
+    const allExpText = expDescriptions.join(" ").toLowerCase();
+    const careerLower = career.toLowerCase();
+    
+    // 1. Specific skill matches - use actual skill names
+    const directSkillMatches = skills.filter((skill: string) => {
+      const skillLower = skill.toLowerCase();
+      return careerLower.includes(skillLower) || 
+             (CAREER_DESCRIPTIONS[career] || "").toLowerCase().includes(skillLower) ||
+             (skillLower.includes("engineer") && careerLower.includes("engineer")) ||
+             (skillLower.includes("data") && (careerLower.includes("data") || careerLower.includes("analyst"))) ||
+             (skillLower.includes("design") && careerLower.includes("design")) ||
+             (skillLower.includes("python") && (careerLower.includes("data") || careerLower.includes("engineer"))) ||
+             (skillLower.includes("react") && careerLower.includes("engineer")) ||
+             (skillLower.includes("sql") && careerLower.includes("data")) ||
+             (skillLower.includes("javascript") && careerLower.includes("engineer")) ||
+             (skillLower.includes("biology") && (careerLower.includes("bio") || careerLower.includes("scientist") || careerLower.includes("research"))) ||
+             (skillLower.includes("chemistry") && (careerLower.includes("chemist") || careerLower.includes("scientist") || careerLower.includes("research"))) ||
+             (skillLower.includes("physics") && (careerLower.includes("physicist") || careerLower.includes("scientist") || careerLower.includes("research"))) ||
+             (skillLower.includes("biochemistry") && (careerLower.includes("bio") || careerLower.includes("chemist") || careerLower.includes("scientist"))) ||
+             (skillLower.includes("molecular") && (careerLower.includes("molecular") || careerLower.includes("biology") || careerLower.includes("scientist"))) ||
+             (skillLower.includes("laboratory") && (careerLower.includes("lab") || careerLower.includes("technician") || careerLower.includes("research"))) ||
+             (skillLower.includes("pcr") && (careerLower.includes("bio") || careerLower.includes("scientist") || careerLower.includes("research"))) ||
+             (skillLower.includes("medical") && (careerLower.includes("doctor") || careerLower.includes("physician") || careerLower.includes("medical") || careerLower.includes("healthcare"))) ||
+             (skillLower.includes("patient") && (careerLower.includes("doctor") || careerLower.includes("physician") || careerLower.includes("nurse") || careerLower.includes("healthcare"))) ||
+             (skillLower.includes("diagnosis") && (careerLower.includes("doctor") || careerLower.includes("physician") || careerLower.includes("medical"))) ||
+             (skillLower.includes("surgery") && (careerLower.includes("surgeon") || careerLower.includes("surgical") || careerLower.includes("physician"))) ||
+             (skillLower.includes("clinical") && (careerLower.includes("medical") || careerLower.includes("healthcare") || careerLower.includes("doctor") || careerLower.includes("physician"))) ||
+             (skillLower.includes("hospital") && (careerLower.includes("medical") || careerLower.includes("healthcare") || careerLower.includes("doctor") || careerLower.includes("physician")));
+    });
+    
+    if (directSkillMatches.length > 0) {
+      const skillList = directSkillMatches.length === 1 
+        ? directSkillMatches[0]
+        : directSkillMatches.length === 2
+        ? `${directSkillMatches[0]} and ${directSkillMatches[1]}`
+        : `${directSkillMatches.slice(0, 2).join(", ")}, and ${directSkillMatches.length - 2} more`;
+      reasons.push(`You have ${directSkillMatches.length === 1 ? "the skill" : "proven skills"} in ${skillList}, which ${directSkillMatches.length === 1 ? "is" : "are"} essential for ${career} roles.`);
+    }
+    
+    // 2. Direct experience match - use actual job titles
+    const matchingJobs = expTitles.filter((title: string) => {
+      const titleLower = title.toLowerCase();
+      return careerLower.includes(titleLower.split(" ")[0]) ||
+             careerLower.includes(titleLower.split(" ")[1] || "") ||
+             (titleLower.includes("engineer") && careerLower.includes("engineer")) ||
+             (titleLower.includes("developer") && careerLower.includes("engineer")) ||
+             (titleLower.includes("analyst") && (careerLower.includes("analyst") || careerLower.includes("data"))) ||
+             (titleLower.includes("data") && (careerLower.includes("data") || careerLower.includes("science"))) ||
+             (titleLower.includes("product") && careerLower.includes("product")) ||
+             (titleLower.includes("design") && careerLower.includes("design")) ||
+             (titleLower.includes("scientist") && (careerLower.includes("scientist") || careerLower.includes("research"))) ||
+             (titleLower.includes("research") && (careerLower.includes("research") || careerLower.includes("scientist"))) ||
+             (titleLower.includes("lab") && (careerLower.includes("lab") || careerLower.includes("technician"))) ||
+             (titleLower.includes("bio") && (careerLower.includes("bio") || careerLower.includes("scientist"))) ||
+             (titleLower.includes("chemist") && careerLower.includes("chemist")) ||
+             (titleLower.includes("physicist") && careerLower.includes("physicist")) ||
+             (titleLower.includes("doctor") && (careerLower.includes("doctor") || careerLower.includes("physician") || careerLower.includes("medical"))) ||
+             (titleLower.includes("physician") && (careerLower.includes("physician") || careerLower.includes("doctor") || careerLower.includes("medical"))) ||
+             (titleLower.includes("surgeon") && (careerLower.includes("surgeon") || careerLower.includes("surgical"))) ||
+             (titleLower.includes("nurse") && (careerLower.includes("nurse") || careerLower.includes("healthcare"))) ||
+             (titleLower.includes("medical") && (careerLower.includes("medical") || careerLower.includes("doctor") || careerLower.includes("physician") || careerLower.includes("healthcare"))) ||
+             (titleLower.includes("pediatric") && (careerLower.includes("pediatric") || careerLower.includes("pediatrician"))) ||
+             (titleLower.includes("cardiologist") && careerLower.includes("cardiologist")) ||
+             (titleLower.includes("oncology") && (careerLower.includes("oncology") || careerLower.includes("oncologist")));
+    });
+    
+    if (matchingJobs.length > 0) {
+      const jobTitle = matchingJobs[0];
+      const jobCount = matchingJobs.length;
+      reasons.push(`Your experience as ${jobTitle}${jobCount > 1 ? ` and ${jobCount - 1} similar role${jobCount > 2 ? "s" : ""}` : ""} directly aligns with ${career} requirements.`);
+    }
+    
+    // 3. Quantifiable achievements from experience descriptions
+    const achievements = [];
+    expDescriptions.forEach((desc: string) => {
+      // Look for numbers/metrics
+      const metrics = desc.match(/\d+%|\d+\+|\$?\d+[kKmM]?|\d+\s*(users|clients|projects|revenue|growth|team|employees|lines|code|systems)/gi);
+      if (metrics && allExpText.includes(careerLower.split(" ")[0])) {
+        achievements.push(...metrics.slice(0, 2));
+      }
+    });
+    
+    if (achievements.length > 0 && allExpText.includes(careerLower.split(" ")[0])) {
+      const topAchievement = achievements[0];
+      reasons.push(`Your experience delivering results like ${topAchievement} demonstrates the impact ${career} professionals are expected to drive.`);
+    }
+    
+    // 4. Education match - use actual degrees/schools
+    const relevantEdu = edu.filter((e: any) => {
+      const degree = (e?.degree || "").toLowerCase();
+      const field = (e?.field || "").toLowerCase();
+      const school = (e?.school || "").toLowerCase();
+      
+      if (careerLower.includes("engineer") || careerLower.includes("data")) {
+        return degree.includes("computer") || degree.includes("science") || degree.includes("engineering") ||
+               field.includes("computer") || field.includes("science") || field.includes("engineering") ||
+               field.includes("statistics") || field.includes("mathematics");
+      }
+      if (careerLower.includes("product") || careerLower.includes("design")) {
+        return degree.includes("design") || degree.includes("business") || field.includes("design") || field.includes("business");
+      }
+      if (careerLower.includes("finance") || careerLower.includes("trading")) {
+        return degree.includes("finance") || degree.includes("economics") || degree.includes("business") ||
+               field.includes("finance") || field.includes("economics") || field.includes("business");
+      }
+      // STEM & Research careers
+      if (careerLower.includes("bio") || careerLower.includes("chemist") || careerLower.includes("physicist") ||
+          careerLower.includes("scientist") || careerLower.includes("research") || careerLower.includes("lab") ||
+          careerLower.includes("pharmaceutical") || careerLower.includes("genetic") || careerLower.includes("molecular")) {
+        return degree.includes("biology") || degree.includes("chemistry") || degree.includes("physics") ||
+               degree.includes("biochemistry") || degree.includes("biomedical") || degree.includes("engineering") ||
+               degree.includes("science") || degree.includes("pharmacy") || degree.includes("genetics") ||
+               field.includes("biology") || field.includes("chemistry") || field.includes("physics") ||
+               field.includes("biochemistry") || field.includes("biomedical") || field.includes("science") ||
+               field.includes("pharmacy") || field.includes("genetics") || field.includes("molecular");
+      }
+      return false;
+    });
+    
+    if (relevantEdu.length > 0) {
+      const eduEntry = relevantEdu[0];
+      const degree = eduEntry?.degree || "";
+      const school = eduEntry?.school || "";
+      if (degree || school) {
+        const eduDesc = degree ? `${degree}${school ? ` from ${school}` : ""}` : school;
+        reasons.push(`Your educational background (${eduDesc}) provides the foundational knowledge required for ${career} roles.`);
+      }
+    }
+    
+    // 5. Specific keyword matches from descriptions with context
+    const categoryKeywords: Record<string, string[]> = {
+      "Engineering": ["api", "system", "application", "codebase", "framework", "backend", "frontend", "infrastructure", "deployment"],
+      "Data & Analytics": ["analysis", "dataset", "model", "ml", "statistics", "analytics", "visualization", "sql", "python"],
+      "Product & Design": ["user experience", "prototype", "wireframe", "user research", "product strategy", "design system"],
+        "Finance & Trading": ["portfolio", "risk", "market", "investment", "financial", "quantitative", "trading", "valuation"],
+        "Business": ["strategy", "growth", "operations", "consulting", "client", "stakeholder", "market", "revenue"],
+        "STEM & Research": ["laboratory", "experiment", "research", "molecule", "cell", "dna", "protein", "assay", "microscopy", "spectroscopy", "chromatography", "clinical trial", "pcr", "gel electrophoresis", "culture", "biochemistry", "biophysics", "genomics", "pharmaceutical", "drug discovery"],
+        "Healthcare & Medicine": ["patient", "diagnosis", "treatment", "medical", "clinical", "hospital", "surgery", "medication", "symptoms", "diagnostic", "therapeutic", "patient care", "medical practice", "medical imaging", "primary care", "emergency medicine"],
+    };
+    
+    let matchingCategory = "";
+    for (const [cat, careers] of Object.entries(CAREER_GROUPS)) {
+      if (careers.includes(career)) {
+        matchingCategory = cat;
+        break;
+      }
+    }
+    
+    if (matchingCategory && categoryKeywords[matchingCategory]) {
+      const foundKeywords = categoryKeywords[matchingCategory].filter((keyword: string) => 
+        allExpText.includes(keyword)
+      );
+      
+      if (foundKeywords.length >= 2) {
+        const keywordList = foundKeywords.slice(0, 2).join(" and ");
+        reasons.push(`Your resume demonstrates hands-on experience with ${keywordList}, core competencies for ${career} positions.`);
+      }
+    }
+    
+    // 6. Years of experience if applicable
+    const yearsExp = calculateYearsExp(exp);
+    if (yearsExp > 0 && reasons.length < 3) {
+      if (yearsExp >= 3) {
+        reasons.push(`With ${yearsExp} years of professional experience, you have the depth of expertise that ${career} roles typically require.`);
+      } else if (yearsExp >= 1) {
+        reasons.push(`Your ${yearsExp} year${yearsExp > 1 ? "s" : ""} of professional experience shows practical application of skills relevant to ${career}.`);
+      }
+    }
+    
+    // Ensure we have at least 3-4 reasons
+    while (reasons.length < 3) {
+      if (skills.length >= 5 && reasons.length < 3) {
+        reasons.push(`Your diverse skill set of ${skills.length}+ technologies demonstrates the versatility needed for ${career} roles.`);
+        break;
+      }
+      if (exp.length >= 2 && reasons.length < 3) {
+        reasons.push(`Your ${exp.length} professional role${exp.length > 1 ? "s" : ""} show consistent growth and experience relevant to ${career}.`);
+        break;
+      }
+      if (reasons.length < 3) {
+        reasons.push(`Based on your overall profile, ${career} aligns with your demonstrated technical background and career trajectory.`);
+        break;
+      }
+    }
+    
+    return reasons.slice(0, 4); // Return up to 4 reasons
+  }
 
   async function saveIntent() {
     // Allow saving partial progress (stage and/or career)
@@ -403,42 +698,58 @@ export default function IntentPage() {
                     {displayedRecommended.slice(0, 3).map((c, idx) => {
                       const isSelected = career === c;
                       return (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => {
-                            setCareer(c);
-                            // Auto-select the category
-                            for (const [cat, careers] of Object.entries(CAREER_GROUPS)) {
-                              if (careers.includes(c)) {
-                                setSelectedGroup(cat);
-                                break;
+                        <div key={c} className="relative">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCareer(c);
+                              // Auto-select the category
+                              for (const [cat, careers] of Object.entries(CAREER_GROUPS)) {
+                                if (careers.includes(c)) {
+                                  setSelectedGroup(cat);
+                                  break;
+                                }
                               }
-                            }
-                          }}
-                          className={`group rounded-lg border-2 px-4 py-3 text-left transition-all duration-200 ${
-                            isSelected
-                              ? "border-[#007A33] bg-[#007A33] text-white shadow-md scale-105"
-                              : "border-[#007A33] bg-white hover:bg-[#007A33] hover:text-white hover:shadow-md"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-semibold">{c}</span>
-                            <div className="flex items-center gap-1">
-                              {idx === 0 && !isSelected && (
-                                <span className="text-[10px] bg-[#007A33] text-white px-1.5 py-0.5 rounded-full">Best Match</span>
-                              )}
-                              {isSelected && (
-                                <CheckCircle2 className="h-3 w-3 text-white" />
-                              )}
+                            }}
+                            className={`group w-full rounded-lg border-2 px-4 py-3 text-left transition-all duration-200 ${
+                              isSelected
+                                ? "border-[#007A33] bg-[#007A33] text-white shadow-md scale-105"
+                                : "border-[#007A33] bg-white hover:bg-[#007A33] hover:text-white hover:shadow-md"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-semibold">{c}</span>
+                              <div className="flex items-center gap-1">
+                                {idx === 0 && !isSelected && (
+                                  <span className="text-[10px] bg-[#007A33] text-white px-1.5 py-0.5 rounded-full">Best Match</span>
+                                )}
+                                {isSelected && (
+                                  <CheckCircle2 className="h-3 w-3 text-white" />
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          {CAREER_DESCRIPTIONS[c] && (
-                            <p className={`text-[10px] line-clamp-2 mt-1 ${isSelected ? "text-white/90" : "text-gray-600 group-hover:text-white/80"}`}>
-                              {CAREER_DESCRIPTIONS[c]}
-                            </p>
-                          )}
-                        </button>
+                            {CAREER_DESCRIPTIONS[c] && (
+                              <p className={`text-[10px] line-clamp-2 mt-1 ${isSelected ? "text-white/90" : "text-gray-600 group-hover:text-white/80"}`}>
+                                {CAREER_DESCRIPTIONS[c]}
+                              </p>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCareerForExplanation(c);
+                              setShowExplanationModal(true);
+                            }}
+                            className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-[10px] px-2 py-0.5 rounded-full border transition-all ${
+                              isSelected
+                                ? "bg-white text-[#007A33] border-white hover:bg-gray-100"
+                                : "bg-white text-[#007A33] border-[#007A33] hover:bg-[#007A33]/10"
+                            }`}
+                          >
+                            See why
+                          </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -454,10 +765,12 @@ export default function IntentPage() {
               {!careerSearch && (
                 <p className="text-xs text-gray-500 mb-3">Not sure? Pick the closest match—you can change it anytime.</p>
               )}
-              {/* Category filter - single row, horizontally scrollable */}
-              <div className="overflow-x-auto mb-4 flex justify-center">
-                <div className="inline-flex gap-2 min-w-max">
-                  {(["All", ...Object.keys(CAREER_GROUPS)]).map((g) => (
+              {/* Category filter - wraps to multiple rows */}
+              <div className="mb-4 flex flex-wrap justify-center gap-2">
+                {(["All", ...Object.keys(CAREER_GROUPS)]).map((g) => {
+                  // Display label mapping
+                  const displayLabel = g === "STEM & Research" ? "STEM" : g;
+                  return (
                     <button
                       key={g}
                       type="button"
@@ -468,10 +781,10 @@ export default function IntentPage() {
                           : "border-gray-200 hover:bg-gray-50"
                       }`}
                     >
-                      {g}
+                      {displayLabel}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {visibleCareers.map((c) => {
@@ -576,6 +889,70 @@ export default function IntentPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Explanation Modal */}
+      {showExplanationModal && selectedCareerForExplanation && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowExplanationModal(false)}
+        >
+          <Card
+            className="w-full max-w-lg bg-white border-2 border-[#007A33] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CardHeader className="relative">
+              <button
+                type="button"
+                onClick={() => setShowExplanationModal(false)}
+                className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="h-5 w-5 text-[#007A33]" />
+                <CardTitle className="text-xl">Why {selectedCareerForExplanation}?</CardTitle>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                Based on your resume, here's why we think this is a great match
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {getCareerExplanation(selectedCareerForExplanation).map((reason, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-[#007A33]/5 border border-[#007A33]/20">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-full bg-[#007A33] text-white flex items-center justify-center text-xs font-bold">
+                        {idx + 1}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed flex-1">
+                      {reason}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="pt-4 border-t border-gray-200">
+                <Button
+                  onClick={() => {
+                    setCareer(selectedCareerForExplanation);
+                    // Auto-select the category
+                    for (const [cat, careers] of Object.entries(CAREER_GROUPS)) {
+                      if (careers.includes(selectedCareerForExplanation)) {
+                        setSelectedGroup(cat);
+                        break;
+                      }
+                    }
+                    setShowExplanationModal(false);
+                  }}
+                  className="w-full bg-[#007A33] hover:bg-[#006628] text-white"
+                >
+                  Select {selectedCareerForExplanation}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

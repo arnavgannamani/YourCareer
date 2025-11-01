@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../../components/ui/card";
 import { Progress } from "../../../../components/ui/progress";
 import { Button } from "../../../../components/ui/button";
+import SetupProgressBar from "../../../../components/SetupProgressBar";
 
 export default function ParsingPage() {
   const params = useParams<{ id: string }>();
@@ -45,8 +46,11 @@ export default function ParsingPage() {
     progress < 40 ? "Analyzing document..." : progress < 60 ? "Extracting contact info..." : progress < 80 ? "Parsing experience..." : "Finalizing...";
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <Card>
+    <div className="min-h-screen bg-white">
+      <SetupProgressBar currentStep={2} totalSteps={4} />
+      
+      <div className="max-w-xl mx-auto p-6">
+        <Card>
         <CardHeader>
           <CardTitle>Parsing your resume</CardTitle>
         </CardHeader>
@@ -62,6 +66,7 @@ export default function ParsingPage() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

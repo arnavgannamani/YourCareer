@@ -10,6 +10,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "..
 import { Input } from "../../../../components/ui/input";
 import { Badge } from "../../../../components/ui/badge";
 import { Textarea } from "../../../../components/ui/textarea";
+import SetupProgressBar from "../../../../components/SetupProgressBar";
 
 function AnimatedCheck() {
   return (
@@ -130,6 +131,8 @@ export default function ReviewPage() {
           </Link>
         </div>
       </header>
+
+      <SetupProgressBar currentStep={2} totalSteps={3} />
 
       <div className="max-w-3xl mx-auto p-6 space-y-4">
       <Card>

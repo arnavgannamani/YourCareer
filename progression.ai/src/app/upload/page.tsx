@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import Link from "next/link";
@@ -9,13 +9,17 @@ import { Button } from "../../components/ui/button";
 import { Progress } from "../../components/ui/progress";
 import { useRouter } from "next/navigation";
 import { Upload, FileText, CheckCircle2, Lock, Zap, ArrowRight } from "lucide-react";
+import SetupProgressBar from "../../components/SetupProgressBar";
 
 export default function UploadPage() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [parsingProgress, setParsingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [resumeId, setResumeId] = useState<string | null>(null);
 
   const onDrop = useCallback((accepted: File[]) => {
     setError(null);
@@ -33,6 +37,42 @@ export default function UploadPage() {
     maxSize: 5 * 1024 * 1024,
   });
 
+  // Poll for parsing status
+  useEffect(() => {
+    if (!resumeId || !parsing) return;
+    
+    let timer: any;
+    async function poll() {
+      try {
+        const res = await fetch(`/api/resume/${resumeId}/status`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || "Failed to fetch status");
+        
+        setParsingProgress(data.progress);
+        
+        if (data.status === "completed") {
+          clearInterval(timer);
+          setParsing(false);
+          // Redirect to review page
+          setTimeout(() => router.push(`/resume/${resumeId}/review`), 800);
+        }
+        if (data.status === "failed") {
+          clearInterval(timer);
+          setParsing(false);
+          setError(data.error || "Parsing failed");
+        }
+      } catch (e: any) {
+        setError(e.message);
+        clearInterval(timer);
+        setParsing(false);
+      }
+    }
+    
+    poll();
+    timer = setInterval(poll, 2000);
+    return () => clearInterval(timer);
+  }, [resumeId, parsing, router]);
+
   async function handleUpload() {
     if (!file) return;
     setUploading(true);
@@ -43,11 +83,14 @@ export default function UploadPage() {
       const res = await axios.post("/api/resume/upload", form, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (evt) => {
-          if (evt.total) setProgress(Math.round((evt.loaded / evt.total) * 100));
+          if (evt.total) setUploadProgress(Math.round((evt.loaded / evt.total) * 100));
         },
       });
       if (res.data?.resumeId) {
-        router.push(`/resume/${res.data.resumeId}/parsing`);
+        // Start parsing on the same page
+        setResumeId(res.data.resumeId);
+        setParsing(true);
+        setParsingProgress(20);
       }
     } catch (e: any) {
       setError(e?.response?.data?.error || "Upload failed");
@@ -70,6 +113,8 @@ export default function UploadPage() {
           <span className="text-xl font-semibold text-[#007A33]">Progression</span>
         </Link>
       </header>
+
+      <SetupProgressBar currentStep={1} totalSteps={3} />
 
       <main className="max-w-4xl mx-auto px-6 pt-12 pb-20">
         <section className="text-center mb-12">
@@ -134,10 +179,35 @@ export default function UploadPage() {
           {uploading && (
             <div className="space-y-3 p-6 bg-gray-50 rounded-xl border border-gray-200">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-700 font-medium">Uploading...</span>
-                <span className="text-[#007A33] font-semibold">{progress}%</span>
+                <span className="text-gray-700 font-medium">
+                  {uploadProgress < 30 ? "Uploading your resume..." :
+                   uploadProgress < 70 ? "Transferring file securely..." :
+                   "Upload complete, preparing to analyze..."}
+                </span>
+                <span className="text-[#007A33] font-semibold">{uploadProgress}%</span>
               </div>
-              <Progress value={progress} className="h-2" />
+              <Progress value={uploadProgress} className="h-2" />
+            </div>
+          )}
+
+          {parsing && (
+            <div className="space-y-3 p-6 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-700 font-medium">
+                  {parsingProgress < 30 ? "Reading document structure..." : 
+                   parsingProgress < 45 ? "Analyzing education history..." :
+                   parsingProgress < 60 ? "Parsing work experiences..." :
+                   parsingProgress < 75 ? "Extracting skills and certifications..." :
+                   parsingProgress < 90 ? "Identifying key achievements..." :
+                   parsingProgress < 100 ? "Finalizing your profile..." :
+                   "Processing complete!"}
+                </span>
+                <span className="text-[#007A33] font-semibold">{parsingProgress}%</span>
+              </div>
+              <Progress value={parsingProgress} className="h-2" />
+              {parsingProgress === 100 && (
+                <p className="text-sm text-green-600 font-medium">Completed! Redirecting to review...</p>
+              )}
             </div>
           )}
 
@@ -150,13 +220,18 @@ export default function UploadPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               onClick={handleUpload}
-              disabled={!file || uploading}
+              disabled={!file || uploading || parsing}
               className="flex-1 h-14 text-base font-semibold rounded-full bg-[#007A33] text-white hover:bg-[#006628] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? (
                 <span className="flex items-center gap-2">
                   <span className="animate-spin">⏳</span>
                   Uploading...
+                </span>
+              ) : parsing ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin">⏳</span>
+                  Processing...
                 </span>
               ) : (
                 <span className="flex items-center gap-2 justify-center">

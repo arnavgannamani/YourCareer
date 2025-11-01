@@ -16,6 +16,7 @@ import ExplanationModal from "./components/ExplanationModal";
 
 // Utils
 import { recommendCareers, getCareerExplanation } from "./utils/careerRecommendations";
+import SetupProgressBar from "../../../../components/SetupProgressBar";
 
 export default function IntentPage() {
   const params = useParams<{ id: string }>();
@@ -157,6 +158,8 @@ export default function IntentPage() {
           </Link>
         </div>
       </header>
+
+      <SetupProgressBar currentStep={3} totalSteps={3} />
 
       <div className="max-w-5xl mx-auto p-6 space-y-4">
         <Card>

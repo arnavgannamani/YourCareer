@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { Button } from "../../components/ui/button";
 import { Progress } from "../../components/ui/progress";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,7 @@ import SetupProgressBar from "../../components/SetupProgressBar";
 
 export default function UploadPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [parsingProgress, setParsingProgress] = useState(0);
@@ -20,6 +22,27 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
+
+  // Check if user already has a profile and redirect to dashboard
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+      return;
+    }
+    if (status === "authenticated") {
+      (async () => {
+        try {
+          const res = await fetch("/api/profile/has-profile");
+          const data = await res.json();
+          if (data.hasProfile) {
+            router.replace("/dashboard");
+          }
+        } catch (e) {
+          // If check fails, stay on upload page
+        }
+      })();
+    }
+  }, [status, router]);
 
   const onDrop = useCallback((accepted: File[]) => {
     setError(null);

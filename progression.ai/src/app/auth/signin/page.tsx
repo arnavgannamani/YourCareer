@@ -33,7 +33,22 @@ export default function SignInPage() {
         setError("Invalid email or password");
       }
     } else {
-      router.replace("/upload");
+      // Check if user has a confirmed profile
+      try {
+        const profileCheck = await fetch("/api/profile/has-profile");
+        const profileData = await profileCheck.json();
+        
+        if (profileData.hasProfile) {
+          // User has a profile, redirect to dashboard
+          router.replace("/dashboard");
+        } else {
+          // No profile yet, redirect to upload
+          router.replace("/upload");
+        }
+      } catch (e) {
+        // Fallback to upload if check fails
+        router.replace("/upload");
+      }
     }
   }
 

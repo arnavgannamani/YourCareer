@@ -122,19 +122,24 @@ export default function IntentPage() {
 
   async function continueNext() {
     await saveIntent();
+    setSaving(true);
     try {
       const res = await fetch(`/api/resume/${params.id}/confirm`, { 
         method: "POST", 
         headers: { "Content-Type": "application/json" } 
       });
       if (res.ok) {
-        router.push("/dashboard");
+        const data = await res.json();
+        // Redirect to OVR reveal page with profileId
+        router.push(`/resume/${params.id}/ovr-reveal?profileId=${data.profileId}`);
       } else {
         const j = await res.json();
         setError(j?.error || "Confirmation failed");
+        setSaving(false);
       }
     } catch (e: any) {
       setError(e?.message || "Confirmation failed");
+      setSaving(false);
     }
   }
 

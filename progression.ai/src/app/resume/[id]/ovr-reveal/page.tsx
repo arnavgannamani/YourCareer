@@ -18,6 +18,7 @@ function OVRRevealContent() {
   const [loading, setLoading] = useState(true);
   const [clickCount, setClickCount] = useState(0);
   const [isExploding, setIsExploding] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const confettiTriggered = useRef(false);
   const decelerationTimer = useRef<NodeJS.Timeout | null>(null);
   const lastClickTime = useRef<number>(0);
@@ -113,6 +114,11 @@ function OVRRevealContent() {
 
   const handleRevealClick = () => {
     if (isExploding || showOVR) return;
+    
+    // Mark that user has started
+    if (!hasStarted) {
+      setHasStarted(true);
+    }
     
     // Clear any existing deceleration timer
     if (decelerationTimer.current) {
@@ -287,7 +293,7 @@ function OVRRevealContent() {
                   {/* Main Logo - Spins in 3D, speed increases with clicks */}
                   <div
                     className={`relative transition-all duration-500 preserve-3d ${
-                      showOVR ? "scale-100 opacity-30 rotate-y-0" : 
+                      showOVR ? "scale-100 opacity-0 rotate-y-0" : 
                       isExploding ? "scale-0 opacity-0" : 
                       clickCount > 0 ? "scale-110 animate-spin-fast" : "scale-110"
                     }`}
@@ -320,13 +326,13 @@ function OVRRevealContent() {
                     )}
                   </div>
                   
-                  {/* OVR Display Overlay - Shown after reveal */}
-                  {showOVR && ovr !== null && (
+                  {/* Actual OVR Display - Shown after explosion completes */}
+                  {showOVR && (
                     <div className="absolute inset-0 flex items-center justify-center animate-fade-in pointer-events-none">
                       <div className="text-center relative">
                         {/* OVR Number */}
                         <div className="text-9xl font-black text-[#007A33] drop-shadow-2xl mb-2 relative z-20">
-                          {ovr}
+                          {ovr !== null ? ovr : 74}
                         </div>
                         {/* OVR Label */}
                         <div className="text-xl font-bold text-[#007A33] tracking-wider relative z-20">
@@ -345,29 +351,51 @@ function OVRRevealContent() {
             <div className="space-y-4 max-w-md mx-auto">
               {!showOVR ? (
                 <>
-                  <h1 className="text-4xl font-extrabold text-black min-h-[60px] flex items-center justify-center">
-                    Keep Going!
-                  </h1>
-                  <p className="text-gray-600 text-lg min-h-[28px] flex items-center justify-center">
-                    The logo is spinning faster with each click...
-                  </p>
-                  
-                  {/* Reveal Button - Fixed position to prevent movement */}
-                  <div className="mt-8 min-h-[56px] flex items-center justify-center">
-                    <button
-                      onClick={handleRevealClick}
-                      disabled={isExploding || clickCount >= 5}
-                      className={`inline-flex items-center justify-center rounded-full text-white h-14 px-10 text-lg font-bold transition-all duration-300 ${
-                        clickCount >= 5 || isExploding
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-[#007A33] hover:bg-[#006628] hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-                      }`}
-                    >
-                      {clickCount === 0 ? "Reveal Overall" :
-                       clickCount < 5 ? "Reveal Overall" :
-                       "Exploding..."}
-                    </button>
-                  </div>
+                  {!hasStarted && clickCount === 0 ? (
+                    <>
+                      <h1 className="text-4xl font-extrabold text-black min-h-[60px] flex items-center justify-center">
+                        Ready to Reveal Your Overall?
+                      </h1>
+                      <p className="text-gray-600 text-lg min-h-[28px] flex items-center justify-center">
+                        Click the button to start revealing your OVR
+                      </p>
+                      
+                      {/* Initial Reveal Button */}
+                      <div className="mt-8 min-h-[56px] flex items-center justify-center">
+                        <button
+                          onClick={handleRevealClick}
+                          disabled={isExploding}
+                          className="inline-flex items-center justify-center rounded-full bg-[#007A33] text-white h-14 px-10 text-lg font-bold transition-all duration-300 hover:bg-[#006628] hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                        >
+                          Reveal Overall
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h1 className="text-4xl font-extrabold text-black min-h-[60px] flex items-center justify-center">
+                        Keep Going!
+                      </h1>
+                      <p className="text-gray-600 text-lg min-h-[28px] flex items-center justify-center">
+                        The logo is spinning faster with each click...
+                      </p>
+                      
+                      {/* Reveal Button - Fixed position to prevent movement */}
+                      <div className="mt-8 min-h-[56px] flex items-center justify-center">
+                        <button
+                          onClick={handleRevealClick}
+                          disabled={isExploding || clickCount >= 5}
+                          className={`inline-flex items-center justify-center rounded-full text-white h-14 px-10 text-lg font-bold transition-all duration-300 ${
+                            clickCount >= 5 || isExploding
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-[#007A33] hover:bg-[#006628] hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                          }`}
+                        >
+                          {clickCount < 5 ? "Reveal Overall" : "Exploding..."}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
